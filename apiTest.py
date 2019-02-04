@@ -24,7 +24,8 @@ class ApiTests(unittest.TestCase):
         self.assertEqual('che', get_country_code('Switzerland'))
 
     def test_name_3(self):
-        self.assertRaises(KeyError, get_country_code('NotACountry'))
+        with self.assertRaises(KeyError):
+            get_country_code('NotACountry')
 
     # Verify querying specific country and year returns correct population, and an invalid year returns proper error
 
@@ -38,7 +39,8 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(7564985, get_population('Austria', 1985))
 
     def test_population_4(self):
-        self.assertRaises(KeyError, get_population('Belarus', 1339))
+        with self.assertRaises(KeyError):
+            get_population('Belarus', 1339)
 
     # Verify querying specific country and year returns correct CO2 emissions, and appropriate errors for invalid year
 
@@ -52,4 +54,5 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(303275.568, get_emissions('France', 2014))
 
     def test_emission_4(self):
-        self.assertRaises(KeyError, get_emissions('Bulgaria', 3043))
+        with self.assertRaises(KeyError):
+            get_emissions('Bulgaria', 3043)
