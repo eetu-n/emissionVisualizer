@@ -4,10 +4,16 @@ from apiCaller import *
 
 class ApiTests(unittest.TestCase):
 
-    # Verify country name list is correct length
+    # Verify country name list is correct length, and list contains names of countries
 
     def test_length(self):
         self.assertEqual(304, len(get_country_list()))
+
+    def test_list_1(self):
+        self.assertEquals('Aruba', get_country_list()[0])
+
+    def test_list_2(self):
+        self.assertEquals('Africa', get_country_list()[2])
 
     # Verify querying country name returns country ISO 3 code and appropriate error is given with invalid country names
 
