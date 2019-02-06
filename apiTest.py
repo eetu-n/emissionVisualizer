@@ -35,6 +35,22 @@ class ApiTests(unittest.TestCase):
         year_range = []
         self.assertEqual(year_range, apiCaller.get_year_list('Portugal', 'population', 1900, 1923))
 
+    def test_year_range_5(self):
+        with self.assertRaises(ValueError):
+            apiCaller.get_year_list('Portugal', 2, 1967, 1970)
+
+    def test_year_range_6(self):
+        with self.assertRaises(ValueError):
+            apiCaller.get_year_list('Portugal', 'asd', 1967, 1970)
+
+    def test_year_range_7(self):
+        with self.assertRaises(ValueError):
+            apiCaller.get_year_list('Portugal', 'population', 'asd', 1970)
+
+    def test_year_range_8(self):
+        with self.assertRaises(ValueError):
+            apiCaller.get_year_list('Portugal', 'population', 1967, 'asd')
+
     # Verify querying country name returns country ISO 3 code and appropriate error is given with invalid country names
 
     def test_name_1(self):
@@ -66,6 +82,14 @@ class ApiTests(unittest.TestCase):
         with self.assertRaises(KeyError):
             apiCaller.get_population('Belarus', 1339)
 
+    def test_population_5(self):
+        with self.assertRaises(ValueError):
+            apiCaller.get_population(True, 2009)
+
+    def test_population_6(self):
+        with self.assertRaises(ValueError):
+            apiCaller.get_population('Belarus', True)
+
     # Verify querying specific country and year returns correct CO2 emissions, and appropriate errors for invalid year
 
     def test_emission_1(self):
@@ -80,6 +104,14 @@ class ApiTests(unittest.TestCase):
     def test_emission_4(self):
         with self.assertRaises(KeyError):
             apiCaller.get_emissions('Bulgaria', 3043)
+
+    def test_emission_5(self):
+        with self.assertRaises(ValueError):
+            apiCaller.get_emissions(True, 2011)
+
+    def test_emission_6(self):
+        with self.assertRaises(KeyError):
+            apiCaller.get_emissions('Bulgaria', True)
 
     # Verify that querying range of years returns correct range of population values
 
@@ -130,3 +162,21 @@ class ApiTests(unittest.TestCase):
             1970: 21539.958,
             1971: 32280.601}
         self.assertEqual(test_range, apiCaller.get_data_range('Nigeria', 'emissions', 1969, 1971))
+
+    # Verify error detection for get_data_range
+
+    def test_data_error_1(self):
+        with self.assertRaises(ValueError):
+            apiCaller.get_data_range(True, 'emissions', 1969, 1971)
+
+    def test_data_error_2(self):
+        with self.assertRaises(ValueError):
+            apiCaller.get_data_range('Nigeria', True, 1969, 1971)
+
+    def test_data_error_3(self):
+        with self.assertRaises(ValueError):
+            apiCaller.get_data_range('Nigeria', 'emissions', True, 1971)
+
+    def test_data_error_4(self):
+        with self.assertRaises(ValueError):
+            apiCaller.get_data_range('Nigeria', 'emissions', 1969, True)
