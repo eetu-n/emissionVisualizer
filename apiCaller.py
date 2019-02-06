@@ -2,54 +2,51 @@ import requests
 
 
 class ApiCaller:
+    def __init__(self):
+        self.country_list = []
+        self.country_id_dict = {}
+        self.population_cache = {}
+        self.emissions_cache = {}
+
     country_url = "http://api.worldbank.org/v2/country/all?format=json&per_page=350"
     country_json = requests.get(country_url).json()
     generic_url = "http://api.worldbank.org/v2/en/country/"
     population_url = "/indicator/SP.POP.TOTL?format=json&per_page=500"
     emissions_url = "/indicator/EN.ATM.CO2E.KT?format=json&per_page=500"
-    country_list = []
-    country_id_dict = {}
-    population_cache = {}
-    emissions_cache = {}
 
-    def get_country_list():
-        global country_list
-        if len(country_list) == 0:
-            country_list = []
-            for country in country_json[1]:
-                country_list.append(country['name'])
+    def get_country_list(self):
+        if len(self.country_list) == 0:
+            for country in self.country_json[1]:
+                self.country_list.append(country['name'])
 
-        return country_list
+        return self.country_list
 
-    def get_country_id_dict():
-        global country_id_dict
-        if len(country_id_dict) == 0:
-            for country in country_json[1]:
-                country_id_dict[country['name']] = country['id'].lower()
+    def get_country_id_dict(self):
+        if len(self.country_id_dict) == 0:
+            for country in self.country_json[1]:
+                self.country_id_dict[country['name']] = country['id'].lower()
 
-        return country_id_dict
+        return self.country_id_dict
 
-    def get_country_code(name):
-        return get_country_id_dict()[name]
+    def get_country_code(self, name):
+        return self.get_country_id_dict()[name]
 
-    def get_population(name, year):
-        global population_cache
-        country_id = get_country_code(name)
-        if country_id not in population_cache:
-            population_list = requests.get(generic_url + country_id + population_url).json()[1]
-            population_cache[country_id] = {}
+    def get_population(self, name, year):
+        country_id = self.get_country_code(name)
+        if country_id not in self.population_cache:
+            population_list = requests.get(self.generic_url + country_id + self.population_url).json()[1]
+            self.population_cache[country_id] = {}
             for population in population_list:
-                population_cache[country_id][int(population['date'])] = population['value']
+                self.population_cache[country_id][int(population['date'])] = population['value']
 
-        return population_cache[country_id][year]
+        return self.population_cache[country_id][year]
 
-    def get_emissions(name, year):
-        global emissions_cache
-        country_id = get_country_code(name)
-        if country_id not in emissions_cache:
-            emissions_list = requests.get(generic_url + country_id + emissions_url).json()[1]
-            emissions_cache[country_id] = {}
+    def get_emissions(self, name, year):
+        country_id = self.get_country_code(name)
+        if country_id not in self.emissions_cache:
+            emissions_list = requests.get(self.generic_url + country_id + self.emissions_url).json()[1]
+            self.emissions_cache[country_id] = {}
             for emissions in emissions_list:
-                emissions_cache[country_id][int(emissions['date'])] = emissions['value']
+                self.emissions_cache[country_id][int(emissions['date'])] = emissions['value']
 
-        return emissions_cache[country_id][year]
+        return self.emissions_cache[country_id][year]
