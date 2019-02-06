@@ -4,6 +4,7 @@ import requests
 class ApiCaller:
     def __init__(self):
         self.country_list = []
+        self.year_list = []
         self.country_id_dict = {}
         self.population_cache = {}
         self.emissions_cache = {}
@@ -13,6 +14,13 @@ class ApiCaller:
     generic_url = "http://api.worldbank.org/v2/en/country/"
     population_url = "/indicator/SP.POP.TOTL?format=json&per_page=500"
     emissions_url = "/indicator/EN.ATM.CO2E.KT?format=json&per_page=500"
+
+    def temp_get_year_list(self):
+        if len(self.year_list) == 0:
+            for x in range(1900, 2019):
+                self.year_list.append(x)
+
+        return self.year_list
 
     def get_country_list(self):
         if len(self.country_list) == 0:
@@ -39,6 +47,9 @@ class ApiCaller:
             for population in population_list:
                 self.population_cache[country_id][int(population['date'])] = population['value']
 
+        if not isinstance(year, int):
+            year = int(year)
+
         return self.population_cache[country_id][year]
 
     def get_emissions(self, name, year):
@@ -48,5 +59,8 @@ class ApiCaller:
             self.emissions_cache[country_id] = {}
             for emissions in emissions_list:
                 self.emissions_cache[country_id][int(emissions['date'])] = emissions['value']
+
+        if not isinstance(year, int):
+            year = int(year)
 
         return self.emissions_cache[country_id][year]
