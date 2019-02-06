@@ -4,10 +4,11 @@ import requests
 class ApiCaller:
     def __init__(self):
         self.country_list = []
-        self.year_list = []
         self.country_id_dict = {}
         self.population_cache = {}
         self.emissions_cache = {}
+        self.population_year_cache = {}
+        self.emissions_year_cache = {}
 
     country_url = "http://api.worldbank.org/v2/country/all?format=json&per_page=350"
     country_json = requests.get(country_url).json()
@@ -15,12 +16,39 @@ class ApiCaller:
     population_url = "/indicator/SP.POP.TOTL?format=json&per_page=500"
     emissions_url = "/indicator/EN.ATM.CO2E.KT?format=json&per_page=500"
 
-    def temp_get_year_list(self):
-        if len(self.year_list) == 0:
-            for x in range(1900, 2019):
-                self.year_list.append(x)
+    def get_year_list(self, country, data_type, year_min, year_max):
+        country_id = self.get_country_code(country)
+        year_list = []
+        if year_min > year_max:
+            temp = year_max
+            year_max = year_min
+            year_min = temp
 
-        return self.year_list
+        if country_id not in self.emissions_year_cache and data_type == 'emissions':
+            emissions_list = (requests.get(self.generic_url + country_id + self.emissions_url)).json()
+            for x in emissions_list[1]:
+                if x['value'] is not None:
+                    year_list.insert(0, int(x['date']))
+
+            self.emissions_year_cache[country_id] = year_list
+
+        elif country_id in self.emissions_year_cache:
+            year_list = self.population_year_cache[country_id]
+
+        if country_id not in self.population_year_cache and data_type == 'population':
+            population_list = (requests.get(self.generic_url + country_id + self.population_url)).json()
+            for x in population_list[1]:
+                if x['value'] is not None:
+                    year_list.insert(0, int(x['date']))
+
+            self.population_year_cache[country_id] = year_list
+
+        elif country_id in self.population_year_cache:
+            year_list = self.population_year_cache[country_id]
+
+        year_list = list(set(year_list) & set(range(year_min, year_max + 1)))
+
+        return year_list
 
     def get_country_list(self):
         if len(self.country_list) == 0:
@@ -64,3 +92,9 @@ class ApiCaller:
             year = int(year)
 
         return self.emissions_cache[country_id][year]
+
+    def get_population_range(self, name, year_min, year_max):
+        pass
+
+    def get_emissions_range(self, name, year_min, year_max):
+        pass
