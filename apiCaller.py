@@ -47,6 +47,7 @@ class ApiCaller:
             year_list = self.population_year_cache[country_id]
 
         year_list = list(set(year_list) & set(range(year_min, year_max + 1)))
+        year_list.sort()
 
         return year_list
 
@@ -93,8 +94,18 @@ class ApiCaller:
 
         return self.emissions_cache[country_id][year]
 
-    def get_population_range(self, name, year_min, year_max):
-        pass
+    def get_data_range(self, country, data_type, year_min, year_max):
+        if data_type != "emissions" and data_type != "population":
+            raise ValueError("data_type must be either 'emissions' or 'population'")
 
-    def get_emissions_range(self, name, year_min, year_max):
-        pass
+        year_range = self.get_year_list(country, data_type, year_min, year_max)
+        data_range = {}
+
+        if data_type == "emissions":
+            for year in year_range:
+                data_range[year] = self.get_emissions(country, year)
+        elif data_type == "population":
+            for year in year_range:
+                data_range[year] = self.get_population(country, year)
+
+        return data_range

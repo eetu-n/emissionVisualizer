@@ -47,6 +47,10 @@ class ApiTests(unittest.TestCase):
         with self.assertRaises(KeyError):
             apiCaller.get_country_code('NotACountry')
 
+    def test_name_4(self):
+        with self.assertRaises(KeyError):
+            apiCaller.get_country_code(True)
+
     # Verify querying specific country and year returns correct population, and an invalid year returns proper error
 
     def test_population_1(self):
@@ -80,27 +84,49 @@ class ApiTests(unittest.TestCase):
     # Verify that querying range of years returns correct range of population values
 
     def test_population_range_1(self):
-        test_range = [71339185, 72326914, 73409455]
-        self.assertEqual(test_range, apiCaller.get_emissions_range('Turkey', 2009, 2011))
+        test_range = {
+            2009: 71339185,
+            2010: 72326914,
+            2011: 73409455}
+        self.assertEqual(test_range, apiCaller.get_data_range('Turkey', 'population', 2009, 2011))
 
     def test_population_range_2(self):
-        test_range = [7180100, 7308800]
-        self.assertEqual(test_range, apiCaller.get_emissions_range('Israel', 2007, 2008))
+        test_range = {
+            2007: 7180100,
+            2008: 7308800}
+        self.assertEqual(test_range, apiCaller.get_data_range('Israel', 'population', 2007, 2008))
 
     def test_population_range_3(self):
-        test_range = [16319868, 16346101, 16381696, 16445593]
-        self.assertEqual(test_range, apiCaller.get_emissions_range('The Netherlands', 2005, 2008))
+        test_range = {
+            2005: 16319868,
+            2006: 16346101,
+            2007: 16381696,
+            2008: 16445593}
+        self.assertEqual(test_range, apiCaller.get_data_range('Netherlands', 'population', 2005, 2008))
 
     # Verify that querying range of years returns correct range of emission values
 
     def test_emissions_range_1(self):
-        test_range = [493207.833, 447828.708, 468572.927, 458250.322, 419820.162]
-        self.assertEqual(test_range, apiCaller.get_emissions_range('United Kingdom', 2010, 2014))
+        test_range = {
+            2010: 493207.833,
+            2011: 447828.708,
+            2012: 468572.927,
+            2013: 458250.322,
+            2014: 419820.162}
+        self.assertEqual(test_range, apiCaller.get_data_range('United Kingdom', 'emissions', 2010, 2014))
 
     def test_emissions_range_2(self):
-        test_range = [102874.018, 103116.04, 100354.789, 107461.435, 106049.64]
-        self.assertEqual(test_range, apiCaller.get_emissions_range('Belgium', 1986, 1990))
+        test_range = {
+            1986: 102874.018,
+            1987: 103116.04,
+            1988: 100354.789,
+            1989: 107461.435,
+            1990: 106049.64}
+        self.assertEqual(test_range, apiCaller.get_data_range('Belgium', 'emissions', 1986, 1990))
 
     def test_emissions_range_3(self):
-        test_range = [12112.101, 21539.958, 32280.601]
-        self.assertEqual(test_range, apiCaller.get_emissions_range('Nigeria', 1969, 1971))
+        test_range = {
+            1969: 12112.101,
+            1970: 21539.958,
+            1971: 32280.601}
+        self.assertEqual(test_range, apiCaller.get_data_range('Nigeria', 'emissions', 1969, 1971))
