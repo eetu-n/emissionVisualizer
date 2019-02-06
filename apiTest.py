@@ -8,14 +8,32 @@ class ApiTests(unittest.TestCase):
 
     # Verify country name list is correct length, and list contains names of countries
 
-    def test_length(self):
+    def test_country_list_length(self):
         self.assertEqual(304, len(apiCaller.get_country_list()))
 
-    def test_list_1(self):
+    def test_country_list_1(self):
         self.assertEqual('Aruba', apiCaller.get_country_list()[0])
 
-    def test_list_2(self):
+    def test_country_list_2(self):
         self.assertEqual('Africa', apiCaller.get_country_list()[2])
+
+    # Verify querying year range for specific country returns years with data
+
+    def test_year_range_1(self):
+        year_range = [2003, 2004, 2005]
+        self.assertEqual(year_range, apiCaller.get_year_list('Zimbabwe', 'emissions', 2005, 2003))
+
+    def test_year_range_2(self):
+        year_range = [2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017]
+        self.assertEqual(year_range, apiCaller.get_year_list('Indonesia', 'population', 2010, 3000))
+
+    def test_year_range_3(self):
+        year_range = [1960, 1961, 1962, 1963, 1964, 1965, 1966, 1967, 1968, 1969, 1970]
+        self.assertEqual(year_range, apiCaller.get_year_list('Philippines', 'emissions', 1000, 1970))
+
+    def test_year_range_4(self):
+        year_range = []
+        self.assertEqual(year_range, apiCaller.get_year_list('Portugal', 'population', 1900, 1923))
 
     # Verify querying country name returns country ISO 3 code and appropriate error is given with invalid country names
 
@@ -23,7 +41,7 @@ class ApiTests(unittest.TestCase):
         self.assertEqual('dnk', apiCaller.get_country_code('Denmark'))
 
     def test_name_2(self):
-        self.assertEqual('che', apiCaller.get_country_code('Switzerland'))
+        self.assertEqual('gbr', apiCaller.get_country_code('United Kingdom'))
 
     def test_name_3(self):
         with self.assertRaises(KeyError):
@@ -58,3 +76,31 @@ class ApiTests(unittest.TestCase):
     def test_emission_4(self):
         with self.assertRaises(KeyError):
             apiCaller.get_emissions('Bulgaria', 3043)
+
+    # Verify that querying range of years returns correct range of population values
+
+    def test_population_range_1(self):
+        test_range = [71339185, 72326914, 73409455]
+        self.assertEqual(test_range, apiCaller.get_emissions_range('Turkey', 2009, 2011))
+
+    def test_population_range_2(self):
+        test_range = [7180100, 7308800]
+        self.assertEqual(test_range, apiCaller.get_emissions_range('Israel', 2007, 2008))
+
+    def test_population_range_3(self):
+        test_range = [16319868, 16346101, 16381696, 16445593]
+        self.assertEqual(test_range, apiCaller.get_emissions_range('The Netherlands', 2005, 2008))
+
+    # Verify that querying range of years returns correct range of emission values
+
+    def test_emissions_range_1(self):
+        test_range = [493207.833, 447828.708, 468572.927, 458250.322, 419820.162]
+        self.assertEqual(test_range, apiCaller.get_emissions_range('United Kingdom', 2010, 2014))
+
+    def test_emissions_range_2(self):
+        test_range = [102874.018, 103116.04, 100354.789, 107461.435, 106049.64]
+        self.assertEqual(test_range, apiCaller.get_emissions_range('Belgium', 1986, 1990))
+
+    def test_emissions_range_3(self):
+        test_range = [12112.101, 21539.958, 32280.601]
+        self.assertEqual(test_range, apiCaller.get_emissions_range('Nigeria', 1969, 1971))
