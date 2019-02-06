@@ -27,12 +27,12 @@
 {% if received %}
     <div>
         <p>
-            {% if data == "emissions" %}
+            {% if data_type == "emissions" %}
                 Emissions for
             {% else %}
                 Population of
             {% endif %}
-            {{ country }} in {{ year }}
+            {{ country }} in {{ year }}: {{ data }}
         </p>
     </div>
 {% endif %}
