@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Emission Visualizer</title>
+</head>
+<body>
+<div>
+    <form method="POST" id="selector">
+        <select name="selected_country">
+            {%  for option in country_list %}
+                <option value="{{ option }}">{{ option }}</option>
+            {% endfor %}
+        </select>
+        <select name="selected_year">
+            {% for year in year_list %}
+                <option value="{{ year }}">{{ year }}</option>
+            {% endfor %}
+        </select>
+        <select name="selected_data">
+            <option value="emissions">Emissions</option>
+            <option value="population">Population</option>
+        </select>
+    </form>
+    <button type="submit" form="selector">Submit</button>
+</div>
+{% if received %}
+    <div>
+        <p>
+            {% if data_type == "emissions" %}
+                Emissions for
+            {% else %}
+                Population of
+            {% endif %}
+            {{ country }} in {{ year }}: {{ data }}
+        </p>
+    </div>
+{% endif %}
+</body>
+</html>
