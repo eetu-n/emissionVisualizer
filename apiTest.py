@@ -163,6 +163,29 @@ class ApiTests(unittest.TestCase):
             1971: 32280.601}
         self.assertEqual(test_range, apiCaller.get_data_range('Nigeria', 'emissions', 1969, 1971))
 
+    # Verify get_emissions_per_capita returns correct values
+
+    def test_per_capita_1(self):
+        self.assertEqual(0.369, apiCaller.get_emissions_per_capita('Costa Rica', 1960))
+
+    def test_per_capita_2(self):
+        self.assertEqual(0.35, apiCaller.get_emissions_per_capita('Afghanistan', 2012))
+
+    def test_per_capita_3(self):
+        self.assertEqual(7.54, apiCaller.get_emissions_per_capita('China', 2014))
+
+    def test_per_capita_4(self):
+        with self.assertRaises(TypeError):
+            apiCaller.get_emissions_per_capita(True, 2012)
+
+    def test_per_capita_5(self):
+        with self.assertRaises(TypeError):
+            apiCaller.get_emissions_per_capita('Aruba', 'notANumber')
+
+    def test_per_capita_6(self):
+        with self.assertRaises(KeyError):
+            apiCaller.get_emissions_per_capita('NotACountry', 2012)
+
     # Verify error detection for get_data_range
 
     def test_data_error_1(self):

@@ -1,4 +1,6 @@
 import requests
+import datetime
+from math import log10, floor
 
 
 class ApiCaller:
@@ -10,27 +12,35 @@ class ApiCaller:
         self.population_year_cache = {}
         self.emissions_year_cache = {}
 
+        self.generic_year_list = []
+        current_datetime = datetime.datetime.now()
+        for x in range(1960, int(current_datetime.strftime("%Y")) + 1):
+            self.generic_year_list.append(x)
+
     country_url = "http://api.worldbank.org/v2/country/all?format=json&per_page=350"
     country_json = requests.get(country_url).json()
     generic_url = "http://api.worldbank.org/v2/en/country/"
     population_url = "/indicator/SP.POP.TOTL?format=json&per_page=500"
     emissions_url = "/indicator/EN.ATM.CO2E.KT?format=json&per_page=500"
 
+    def get_generic_year_list(self):
+        return self.generic_year_list
+
     def get_year_list(self, country, data_type, year_min, year_max):
         if type(country) is not str:
-            raise TypeError("country is expected to be of type str, got " + type(country))
+            raise TypeError("country is expected to be of type str, got " + type(country).__name__)
 
         if type(data_type) is not str:
-            raise TypeError("data_type is expected to be of type str, got " + type(data_type))
+            raise TypeError("data_type is expected to be of type str, got " + type(data_type).__name__)
 
         if data_type != 'emissions' and data_type != 'population':
             raise ValueError("data_type must be 'emissions' or 'population'")
 
         if type(year_min) is not int:
-            raise TypeError("year_min is expected to be of type int, got " + type(year_min))
+            raise TypeError("year_min is expected to be of type int, got " + type(year_min).__name__)
 
         if type(year_max) is not int:
-            raise TypeError("year_min is expected to be of type int, got " + type(year_max))
+            raise TypeError("year_min is expected to be of type int, got " + type(year_max).__name__)
 
         country_id = self.get_country_code(country)
         year_list = []
@@ -47,8 +57,8 @@ class ApiCaller:
 
             self.emissions_year_cache[country_id] = year_list
 
-        elif country_id in self.emissions_year_cache:
-            year_list = self.population_year_cache[country_id]
+        elif country_id in self.emissions_year_cache and data_type == 'emissions':
+            year_list = self.emissions_year_cache[country_id]
 
         if country_id not in self.population_year_cache and data_type == 'population':
             population_list = (requests.get(self.generic_url + country_id + self.population_url)).json()
@@ -58,7 +68,7 @@ class ApiCaller:
 
             self.population_year_cache[country_id] = year_list
 
-        elif country_id in self.population_year_cache:
+        elif country_id in self.population_year_cache and data_type == 'population':
             year_list = self.population_year_cache[country_id]
 
         year_list = list(set(year_list) & set(range(year_min, year_max + 1)))
@@ -82,16 +92,16 @@ class ApiCaller:
 
     def get_country_code(self, country):
         if type(country) is not str:
-            raise TypeError("country is expected to be of type str, got " + type(country))
+            raise TypeError("country is expected to be of type str, got " + type(country).__name__)
 
         return self.get_country_id_dict()[country]
 
     def get_population(self, country, year):
         if type(country) is not str:
-            raise TypeError("country is expected to be of type str, got " + type(country))
+            raise TypeError("country is expected to be of type str, got " + type(country).__name__)
 
         if type(year) is not int:
-            raise TypeError("year is expected to be of type int, got " + type(year))
+            raise TypeError("year is expected to be of type int, got " + type(year).__name__)
 
         country_id = self.get_country_code(country)
         if country_id not in self.population_cache:
@@ -100,17 +110,14 @@ class ApiCaller:
             for population in population_list:
                 self.population_cache[country_id][int(population['date'])] = population['value']
 
-        if type(year) is not int:
-            year = int(year)
-
         return self.population_cache[country_id][year]
 
     def get_emissions(self, country, year):
         if type(country) is not str:
-            raise TypeError("country is expected to be of type str, got " + type(country))
+            raise TypeError("country is expected to be of type str, got " + type(country).__name__)
 
         if type(year) is not int:
-            raise TypeError("year is expected to be of type int, got " + type(year))
+            raise TypeError("year is expected to be of type int, got " + type(year).__name__)
 
         country_id = self.get_country_code(country)
         if country_id not in self.emissions_cache:
@@ -119,26 +126,30 @@ class ApiCaller:
             for emissions in emissions_list:
                 self.emissions_cache[country_id][int(emissions['date'])] = emissions['value']
 
-        if type(year) is not int:
-            year = int(year)
-
         return self.emissions_cache[country_id][year]
+
+    def get_emissions_per_capita(self, country, year):
+        value = (self.get_emissions(country, year) * 1000) / self.get_population(country, year)
+
+        # Return number rounded to three significant figures
+
+        return round(value, -int(floor(log10(abs(value)))) + 2)
 
     def get_data_range(self, country, data_type, year_min, year_max):
         if type(country) is not str:
-            raise TypeError("country is expected to be of type str, got " + type(country))
+            raise TypeError("country is expected to be of type str, got " + type(country).__name__)
 
         if type(data_type) is not str:
-            raise TypeError("data_type must be of type str, got " + type(data_type))
+            raise TypeError("data_type must be of type str, got " + type(data_type).__name__)
 
         if type(year_min) is not int:
-            raise TypeError("year_min is expected to be of type int, got " + type(year_min))
+            raise TypeError("year_min is expected to be of type int, got " + type(year_min).__name__)
 
         if type(year_max) is not int:
-            raise TypeError("year_max is expected to be of type int, got " + type(year_max))
+            raise TypeError("year_max is expected to be of type int, got " + type(year_max).__name__)
 
-        if data_type != "emissions" and data_type != "population":
-            raise ValueError("data_type must be either 'emissions' or 'population'")
+        if data_type != "emissions" and data_type != "population" and data_type != "emissions_per_capita":
+            raise ValueError("data_type must be either 'emissions', 'population', or 'emissions_per_capita'")
 
         year_range = self.get_year_list(country, data_type, year_min, year_max)
         data_range = {}
@@ -149,5 +160,8 @@ class ApiCaller:
         elif data_type == "population":
             for year in year_range:
                 data_range[year] = self.get_population(country, year)
+        elif data_type == "emissions_per_capita":
+            for year in year_range:
+                data_range[year] = self.get_emissions(country, year) / self.get_population(country, year)
 
         return data_range
