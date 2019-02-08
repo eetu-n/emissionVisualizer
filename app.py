@@ -3,20 +3,20 @@ from apiCaller import ApiCaller
 
 app = Flask(__name__)
 
-apiCaller = ApiCaller()
+api_caller = ApiCaller()
 
 
 @app.route('/', methods=["POST", "GET"])
 def index():
-    country_list = apiCaller.get_country_list()
-    generic_year_list = apiCaller.get_generic_year_list()
-    year_min = 1960
-    year_max = 2019
+    country_list = api_caller.get_country_list()
+    generic_year_list = api_caller.get_generic_year_list()
+    year_min = int(1960)
+    year_max = int(2019)
     country = None
-    year = 0000
     data_type = None
     labels = generic_year_list
     values = []
+    is_empty = False
     received = False
 
     if request.method == "POST":
@@ -29,14 +29,15 @@ def index():
         else:
             data_type = "emissions"
 
-        data_dict = apiCaller.get_data_range(country, data_type, year_min, year_max)
+        data_dict = api_caller.get_data_range(country, data_type, year_min, year_max)
         labels = list(data_dict.keys())
         values = list(data_dict.values())
         received = True
+        is_empty = api_caller.get_year_list(country, data_type, year_min, year_max) == []
 
     return render_template('index.html', country_list=country_list, generic_year_list=generic_year_list,
-                           country=country, year=year, data_type=data_type, received=received, labels=labels,
-                           values=values)
+                           country=country, year_min=year_min, year_max=year_max, data_type=data_type,
+                           received=received, labels=labels, values=values, is_empty=is_empty)
 
 
 if __name__ == '__main__':
