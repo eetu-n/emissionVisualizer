@@ -9,25 +9,34 @@ apiCaller = ApiCaller()
 @app.route('/', methods=["POST", "GET"])
 def index():
     country_list = apiCaller.get_country_list()
-    year_list = apiCaller.temp_get_year_list()
-    country = "blank"
+    generic_year_list = apiCaller.get_generic_year_list()
+    year_min = 1960
+    year_max = 2019
+    country = None
     year = 0000
-    data_type = "blank"
-    data = 0000
+    data_type = None
+    labels = generic_year_list
+    values = []
     received = False
 
     if request.method == "POST":
         country = request.form.get('selected_country')
-        year = request.form.get('selected_year')
-        data_type = request.form.get('selected_data')
-        if data_type == "emissions":
-            data = apiCaller.get_emissions(country, year)
+        year_min = int(request.form.get('selected_year_min'))
+        year_max = int(request.form.get('selected_year_max'))
+        per_capita_selector = request.form.get('selected_data')
+        if per_capita_selector == "on":
+            data_type = "emissions_per_capita"
         else:
-            data = apiCaller.get_population(country, year)
+            data_type = "emissions"
+
+        data_dict = apiCaller.get_data_range(country, data_type, year_min, year_max)
+        labels = list(data_dict.keys())
+        values = list(data_dict.values())
         received = True
 
-    return render_template('index.html', country_list=country_list, year_list=year_list, country=country, year=year,
-                           data_type=data_type, data=data, received=received)
+    return render_template('index.html', country_list=country_list, generic_year_list=generic_year_list,
+                           country=country, year=year, data_type=data_type, received=received, labels=labels,
+                           values=values)
 
 
 if __name__ == '__main__':
