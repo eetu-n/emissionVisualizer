@@ -10,38 +10,51 @@
     <form method="POST" id="selector">
         <select name="selected_country">
             {%  for option in country_list %}
-                <option value="{{ option }}">{{ option }}</option>
+                <option value="{{ option }}"
+                {% if option == country %}
+                        selected
+                {% endif %}
+                >{{ option }}</option>
             {% endfor %}
         </select>
         <select name="selected_year_min">
             {% for year in generic_year_list %}
-                <option value="{{ year }}">{{ year }}</option>
+                <option value="{{ year }}"
+                {% if year == year_min %}
+                    selected
+                {% endif %}
+                >{{ year }}</option>
             {% endfor %}
         </select>
         <select name="selected_year_max">
             {%  for year in generic_year_list %}
-            <option value="{{ year }}">{{ year }}</option>
+            <option value="{{ year }}"
+            {% if year == year_max %}
+                    selected
+            {% endif %}
+            >{{ year }}</option>
             {% endfor %}
         </select>
-        <input type="checkbox" id="selected_data" name="selected_data">
+        <input type="checkbox" id="selected_data" name="selected_data"
+        {% if data_type == "emissions_per_capita" %}
+                checked
+        {% endif %}>
         <label for="selected_data">Per Capita</label>
     </form>
     <button type="submit" form="selector">Submit</button>
 </div>
-{% if received %}
+
+{% if is_empty and received%}
     <div>
         <p>
-            {% if data_type == "emissions" %}
-                Emissions for
-            {% else %}
-                Population of
-            {% endif %}
-            {{ country }} in {{ year }}: {{ data }}
+            No data available for {{ country }} between {{ year_min }} and {{ year_max }}
         </p>
     </div>
+{% elif received %}
+    <div>
+        <canvas id="myChart"></canvas>
+    </div>
 {% endif %}
-
-<canvas id="myChart"></canvas>
 
 <script>
     var ctx = document.getElementById('myChart').getContext('2d');
