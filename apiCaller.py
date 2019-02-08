@@ -33,8 +33,8 @@ class ApiCaller:
         if type(data_type) is not str:
             raise TypeError("data_type is expected to be of type str, got " + type(data_type).__name__)
 
-        if data_type != 'emissions' and data_type != 'population':
-            raise ValueError("data_type must be 'emissions' or 'population'")
+        if data_type != 'emissions' and data_type != 'population' and data_type != 'emissions_per_capita':
+            raise ValueError("data_type must be 'emissions', 'population' or 'emissions_per_capita', got " + data_type)
 
         if type(year_min) is not int:
             raise TypeError("year_min is expected to be of type int, got " + type(year_min).__name__)
@@ -49,27 +49,46 @@ class ApiCaller:
             year_max = year_min
             year_min = temp
 
-        if country_id not in self.emissions_year_cache and data_type == 'emissions':
-            emissions_list = (requests.get(self.generic_url + country_id + self.emissions_url)).json()
-            for x in emissions_list[1]:
-                if x['value'] is not None:
-                    year_list.insert(0, int(x['date']))
+        def get_emissions_year_list():
+            if country_id not in self.emissions_year_cache:
+                inner_year_list = []
+                emissions_list = (requests.get(self.generic_url + country_id + self.emissions_url)).json()
+                for x in emissions_list[1]:
+                    if x['value'] is not None:
+                        inner_year_list.insert(0, int(x['date']))
 
-            self.emissions_year_cache[country_id] = year_list
+                self.emissions_year_cache[country_id] = inner_year_list
 
-        elif country_id in self.emissions_year_cache and data_type == 'emissions':
-            year_list = self.emissions_year_cache[country_id]
+            elif country_id in self.emissions_year_cache:
+                inner_year_list = self.emissions_year_cache[country_id]
 
-        if country_id not in self.population_year_cache and data_type == 'population':
-            population_list = (requests.get(self.generic_url + country_id + self.population_url)).json()
-            for x in population_list[1]:
-                if x['value'] is not None:
-                    year_list.insert(0, int(x['date']))
+            return inner_year_list
 
-            self.population_year_cache[country_id] = year_list
+        def get_population_year_list():
+            if country_id not in self.population_year_cache:
+                inner_year_list = []
+                population_list = (requests.get(self.generic_url + country_id + self.population_url)).json()
+                for x in population_list[1]:
+                    if x['value'] is not None:
+                        inner_year_list.insert(0, int(x['date']))
 
-        elif country_id in self.population_year_cache and data_type == 'population':
-            year_list = self.population_year_cache[country_id]
+                self.population_year_cache[country_id] = inner_year_list
+
+            elif country_id in self.population_year_cache:
+                inner_year_list = self.population_year_cache[country_id]
+
+            return inner_year_list
+
+        if data_type == 'emissions':
+            year_list = get_emissions_year_list()
+
+        elif data_type == 'population':
+            year_list = get_population_year_list()
+
+        elif data_type == 'emissions_per_capita':
+            year_list_1 = get_population_year_list()
+            year_list_2 = get_emissions_year_list()
+            year_list = list(set(year_list_1) & set(year_list_2))
 
         year_list = list(set(year_list) & set(range(year_min, year_max + 1)))
         year_list.sort()
@@ -149,7 +168,8 @@ class ApiCaller:
             raise TypeError("year_max is expected to be of type int, got " + type(year_max).__name__)
 
         if data_type != "emissions" and data_type != "population" and data_type != "emissions_per_capita":
-            raise ValueError("data_type must be either 'emissions', 'population', or 'emissions_per_capita'")
+            raise ValueError("data_type must be either 'emissions', 'population', or 'emissions_per_capita', got " +
+                             data_type)
 
         year_range = self.get_year_list(country, data_type, year_min, year_max)
         data_range = {}
@@ -162,6 +182,6 @@ class ApiCaller:
                 data_range[year] = self.get_population(country, year)
         elif data_type == "emissions_per_capita":
             for year in year_range:
-                data_range[year] = self.get_emissions(country, year) / self.get_population(country, year)
+                data_range[year] = self.get_emissions_per_capita(country, year)
 
         return data_range
