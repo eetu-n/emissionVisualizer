@@ -3,47 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <title>Emission Visualizer</title>
-    <script src="{{ url_for('static', filename='js/chart.js/dist/Chart.js') }}"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/materialize.min.css') }}"
+          media="screen,projection"/>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/nouislider.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <script src="{{ url_for('static', filename='js/Chart.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/jquery-3.3.1.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/nouislider.js') }}"></script>
 </head>
 <body>
-<div>
-    <form method="POST" id="selector">
-        <select name="selected_country">
-            {%  for option in country_list %}
-                <option value="{{ option }}"
-                {% if option == country %}
-                        selected
-                {% endif %}
-                >{{ option }}</option>
-            {% endfor %}
-        </select>
-        <select name="selected_year_min">
-            {% for year in generic_year_list %}
-                <option value="{{ year }}"
-                {% if year == year_min %}
-                    selected
-                {% endif %}
-                >{{ year }}</option>
-            {% endfor %}
-        </select>
-        <select name="selected_year_max">
-            {%  for year in generic_year_list %}
-            <option value="{{ year }}"
-            {% if year == year_max %}
-                    selected
-            {% endif %}
-            >{{ year }}</option>
-            {% endfor %}
-        </select>
-        <input type="checkbox" id="selected_data" name="selected_data"
-        {% if data_type == "emissions_per_capita" %}
-                checked
-        {% endif %}>
-        <label for="selected_data">Per Capita</label>
-    </form>
-    <button type="submit" form="selector">Submit</button>
+<div class="container">
+<form method="POST" id="input">
+    <div class="row">
+        <div class="input-field col s12">
+            <input type="text" id="country_selector" name="country_selector" class="autocomplete"
+                   {% if received %} value="{{ country }}" {% endif %}>
+            <label for="country_selector">Choose a country</label>
+        </div>
+    </div>
+    <div class="row">
+        <div id="year-selector" class="col s12"></div>
+        <input type="number" id="year_min" name="selected_year_min" value="{{ year_min }}" hidden>
+        <input type="number" id="year_max" name="selected_year_max" value="{{ year_max }}" hidden>
+        <label for="year-selector">Choose a date range</label>
+    </div>
+    <div class="row">
+        <div class="col s12">
+            <label>
+            <input type="checkbox" id="selected_data" name="selected_data"
+                {% if data_type == "emissions_per_capita" %}
+                   checked
+                {% endif %}/>
+                <span>Per Capita</span>
+            </label>
+        </div>
+    </div>
+</form>
+<div class="col s12">
+    <button class="btn waves-effect waves-light" type="submit" form="input">Submit
+        <i class="material-icons right">send</i>
+    </button>
 </div>
-
 {% if is_empty and received%}
     <div>
         <p>
@@ -55,6 +56,7 @@
         <canvas id="myChart"></canvas>
     </div>
 {% endif %}
+</div>
 
 <script>
     var ctx = document.getElementById('myChart').getContext('2d');
@@ -65,16 +67,51 @@
         labels: {{ labels }},
         datasets: [{
             label: "Emissions " + {% if data_type == 'emissions_per_capita' %} "per capita " + {% endif %}
-                "in " + "{{ country }}",
-            backgroundColor: 'rgb(255, 99, 132)',
-            borderColor: 'rgb(255, 99, 132)',
+                "in " + "{{ country }} " +
+                "({% if data_type == 'emissions' %}kilotonnes{% else %}tonnes per capita{% endif %})" ,
+            borderColor: 'rgb(38, 166, 154)',
+            fill: false,
             data: {{ values }},
         }]
     },
-
-    // Configuration options go here
-    options: {}
 });
 </script>
+<script>
+    $(document).ready(function(){
+        $('#country_selector').autocomplete({
+            data: {
+                {% for item in country_list %}
+                    "{{ item }}": null,
+                {% endfor %}
+            },
+        });
+    });
+</script>
+<script>
+    var slider = document.getElementById('year-selector');
+    noUiSlider.create(slider, {
+        start: [{{ year_min }}, {{ year_max }}],
+        connect: true,
+        step: 1,
+        orientation: 'horizontal',
+        range: {
+            'min': 1960,
+            'max': 2019
+        },
+        format: wNumb({
+            decimals: 0
+        })
+    });
+
+    slider.noUiSlider.on('set', function(values, handle){
+        if (handle == 0) {
+            document.getElementById("year_min").setAttribute("value", values[handle]);
+        }else if (handle == 1) {
+            document.getElementById("year_max").setAttribute("value", values[handle]);
+        }
+    });
+
+</script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/materialize.min.js') }}"></script>
 </body>
 </html>

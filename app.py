@@ -20,7 +20,7 @@ def index():
     received = False
 
     if request.method == "POST":
-        country = request.form.get('selected_country')
+        country = request.form.get('country_selector')
         year_min = int(request.form.get('selected_year_min'))
         year_max = int(request.form.get('selected_year_max'))
         per_capita_selector = request.form.get('selected_data')
