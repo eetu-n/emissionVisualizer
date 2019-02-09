@@ -67,9 +67,10 @@
         labels: {{ labels }},
         datasets: [{
             label: "Emissions " + {% if data_type == 'emissions_per_capita' %} "per capita " + {% endif %}
-                "in " + "{{ country }}",
-            backgroundColor: 'rgb(255, 99, 132)',
-            borderColor: 'rgb(255, 99, 132)',
+                "in " + "{{ country }} " +
+                "({% if data_type == 'emissions' %}kilotonnes{% else %}tonnes per capita{% endif %})" ,
+            borderColor: 'rgb(38, 166, 154)',
+            fill: false,
             data: {{ values }},
         }]
     },
