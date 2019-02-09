@@ -16,6 +16,18 @@ class ApiTests(unittest.TestCase):
         api_caller = ApiCaller()
         self.assertTrue('Africa' not in api_caller.get_country_list())
 
+    def test_country_dict_1(self):
+        api_caller = ApiCaller()
+        self.assertTrue('Africa' not in api_caller.get_country_id_dict())
+
+    # Make sure both are the same length
+
+    def test_country_dict_2(self):
+        api_caller = ApiCaller()
+        country_list = api_caller.get_country_list()
+        country_dict = api_caller.get_country_id_dict()
+        self.assertTrue(len(country_list) == len(country_dict))
+
     # Verify querying year range for specific country returns years with data
 
     def test_year_range_1(self):
