@@ -6,17 +6,27 @@ class ApiTests(unittest.TestCase):
 
     # Verify country name list is correct length, and list contains names of countries
 
-    def test_country_list_length(self):
-        api_caller = ApiCaller()
-        self.assertEqual(304, len(api_caller.get_country_list()))
-
     def test_country_list_1(self):
         api_caller = ApiCaller()
         self.assertEqual('Aruba', api_caller.get_country_list()[0])
 
+    # Test that regions are not included
+
     def test_country_list_2(self):
         api_caller = ApiCaller()
-        self.assertEqual('Africa', api_caller.get_country_list()[2])
+        self.assertTrue('Africa' not in api_caller.get_country_list())
+
+    def test_country_dict_1(self):
+        api_caller = ApiCaller()
+        self.assertTrue('Africa' not in api_caller.get_country_id_dict())
+
+    # Make sure both are the same length
+
+    def test_country_dict_2(self):
+        api_caller = ApiCaller()
+        country_list = api_caller.get_country_list()
+        country_dict = api_caller.get_country_id_dict()
+        self.assertTrue(len(country_list) == len(country_dict))
 
     # Verify querying year range for specific country returns years with data
 
