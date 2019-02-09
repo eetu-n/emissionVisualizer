@@ -13,31 +13,42 @@ def index():
     year_min = int(1960)
     year_max = int(2019)
     country = None
+    previous_country = None
     data_type = None
+    data_dict = None
     labels = generic_year_list
     values = []
     is_empty = False
     received = False
+    invalid = False
 
     if request.method == "POST":
+        previous_country = country
         country = request.form.get('country_selector')
+        if country not in country_list:
+            country = previous_country
+            invalid = True
+
         year_min = int(request.form.get('selected_year_min'))
         year_max = int(request.form.get('selected_year_max'))
         per_capita_selector = request.form.get('selected_data')
+
         if per_capita_selector == "on":
             data_type = "emissions_per_capita"
         else:
             data_type = "emissions"
 
-        data_dict = api_caller.get_data_range(country, data_type, year_min, year_max)
-        labels = list(data_dict.keys())
-        values = list(data_dict.values())
+        if not invalid:
+            data_dict = api_caller.get_data_range(country, data_type, year_min, year_max)
+            labels = list(data_dict.keys())
+            values = list(data_dict.values())
+            is_empty = api_caller.get_year_list(country, data_type, year_min, year_max) == []
+
         received = True
-        is_empty = api_caller.get_year_list(country, data_type, year_min, year_max) == []
 
     return render_template('index.html', country_list=country_list, generic_year_list=generic_year_list,
                            country=country, year_min=year_min, year_max=year_max, data_type=data_type,
-                           received=received, labels=labels, values=values, is_empty=is_empty)
+                           received=received, labels=labels, values=values, is_empty=is_empty, invalid=invalid)
 
 
 if __name__ == '__main__':

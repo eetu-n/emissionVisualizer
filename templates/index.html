@@ -18,7 +18,7 @@
     <div class="row">
         <div class="input-field col s12">
             <input type="text" id="country_selector" name="country_selector" class="autocomplete"
-                   {% if received %} value="{{ country }}" {% endif %}>
+                   {% if received and not invalid %} value="{{ country }}" {% endif %}>
             <label for="country_selector">Choose a country</label>
         </div>
     </div>
@@ -45,13 +45,20 @@
         <i class="material-icons right">send</i>
     </button>
 </div>
-{% if is_empty and received%}
+{% if invalid %}
+    <div class="row">
+        <div class="col s12">
+            <h6>Please input a valid country</h6>
+        </div>
+    </div>
+{% endif %}
+{% if is_empty and received %}
     <div>
         <p>
             No data available for {{ country }} between {{ year_min }} and {{ year_max }}
         </p>
     </div>
-{% elif received %}
+{% elif received and not invalid %}
     <div>
         <canvas id="myChart"></canvas>
     </div>
