@@ -98,14 +98,16 @@ class ApiCaller:
     def get_country_list(self):
         if len(self.country_list) == 0:
             for country in self.country_json[1]:
-                self.country_list.append(country['name'])
+                if country['region']['value'] != 'Aggregates':
+                    self.country_list.append(country['name'])
 
         return self.country_list
 
     def get_country_id_dict(self):
         if len(self.country_id_dict) == 0:
             for country in self.country_json[1]:
-                self.country_id_dict[country['name']] = country['id'].lower()
+                if country['region']['value'] != 'Aggregates':
+                    self.country_id_dict[country['name']] = country['id'].lower()
 
         return self.country_id_dict
 
