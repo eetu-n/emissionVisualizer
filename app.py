@@ -13,7 +13,6 @@ def index():
     year_min = int(1960)
     year_max = int(2019)
     country = None
-    previous_country = None
     data_type = None
     data_dict = None
     labels = generic_year_list
@@ -23,10 +22,8 @@ def index():
     invalid = False
 
     if request.method == "POST":
-        previous_country = country
         country = request.form.get('country_selector')
         if country not in country_list:
-            country = previous_country
             invalid = True
 
         year_min = int(request.form.get('selected_year_min'))
@@ -48,7 +45,7 @@ def index():
 
     return render_template('index.html', country_list=country_list, generic_year_list=generic_year_list,
                            country=country, year_min=year_min, year_max=year_max, data_type=data_type,
-                           received=received, labels=labels, values=values, is_empty=is_empty, invalid=invalid)
+                           labels=labels, values=values, received=received, is_empty=is_empty, invalid=invalid)
 
 
 if __name__ == '__main__':

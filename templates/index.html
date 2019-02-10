@@ -14,7 +14,7 @@
 </head>
 <body>
 <div class="container">
-<form method="POST" id="input">
+<form method="POST" id="input" autocomplete="off">
     <div class="row">
         <div class="input-field col s12">
             <input type="text" id="country_selector" name="country_selector" class="autocomplete" autocomplete="off"
@@ -29,9 +29,9 @@
         <label for="year-selector">Choose a date range</label>
     </div>
     <div class="row">
-        <div class="col s12">
+        <div class="col s12 center">
             <label>
-            <input type="checkbox" id="selected_data" name="selected_data"
+            <input type="checkbox" id="selected_data" name="selected_data" onclick="submit_form()"
                 {% if data_type == "emissions_per_capita" %}
                    checked
                 {% endif %}/>
@@ -39,30 +39,35 @@
             </label>
         </div>
     </div>
+    <div class="row">
+        <div id="loading_animation" class="col s12 progress scale-transition scale-out">
+            <div class="indeterminate"></div>
+        </div>
+    </div>
 </form>
-<div class="col s12">
-    <button class="btn waves-effect waves-light" type="submit" form="input">Submit
-        <i class="material-icons right">send</i>
-    </button>
-</div>
+
 {% if invalid %}
     <div class="row">
-        <div class="col s12">
+        <div class="col s12 center">
             <h6>Please input a valid country</h6>
         </div>
     </div>
-{% endif %}
-{% if is_empty and received %}
+
+{% elif is_empty and received %}
     <div>
         <p>
             No data available for {{ country }} between {{ year_min }} and {{ year_max }}
         </p>
     </div>
+
 {% elif received and not invalid %}
-    <div>
-        <canvas id="myChart"></canvas>
+    <div class="row">
+        <div class="col s12">
+            <canvas id="myChart"></canvas>
+        </div>
     </div>
 {% endif %}
+
 </div>
 
 <script>
@@ -91,6 +96,10 @@
                     "{{ item }}": null,
                 {% endfor %}
             },
+            minLength: 0,
+            onAutocomplete: function(){
+                submit_form()
+            }
         });
     });
 </script>
@@ -116,8 +125,25 @@
         }else if (handle == 1) {
             document.getElementById("year_max").setAttribute("value", values[handle]);
         }
+        submit_form()
     });
 
+</script>
+<script>
+    function submit_form() {
+        document.getElementById("loading_animation").setAttribute("class", "col s12 progress scale-transition scale-in");
+        document.getElementById("input").submit();
+    }
+</script>
+<script>
+    var input = document.getElementById("country_selector");
+
+    input.addEventListener("keyup", function(event) {
+        event.preventDefault();
+        if (event.keyCode === 13) {
+            submit_form()
+        }
+    });
 </script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/materialize.min.js') }}"></script>
 </body>
