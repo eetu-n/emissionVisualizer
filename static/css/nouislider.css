@@ -65,6 +65,7 @@
     height: 44px;
     left: -15px;
     top: -15px;
+    z-index: 5
 }
 /* Painting and performance;
  * Browsers can paint handles in their own layer.
