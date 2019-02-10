@@ -17,7 +17,7 @@
 <form method="POST" id="input">
     <div class="row">
         <div class="input-field col s12">
-            <input type="text" id="country_selector" name="country_selector" class="autocomplete"
+            <input type="text" id="country_selector" name="country_selector" class="autocomplete" autocomplete="off"
                    {% if received and not invalid %} value="{{ country }}" {% endif %}>
             <label for="country_selector">Choose a country</label>
         </div>
