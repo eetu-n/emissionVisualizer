@@ -13,8 +13,8 @@ class ApiCaller:
         self.emissions_year_cache = {}
 
         self.generic_year_list = []
-        current_datetime = datetime.datetime.now()
-        for x in range(1960, int(current_datetime.strftime("%Y")) + 1):
+
+        for x in range(1960, self.get_current_year() + 1):
             self.generic_year_list.append(x)
 
     country_url = "http://api.worldbank.org/v2/country/all?format=json&per_page=350"
@@ -22,6 +22,10 @@ class ApiCaller:
     generic_url = "http://api.worldbank.org/v2/en/country/"
     population_url = "/indicator/SP.POP.TOTL?format=json&per_page=500"
     emissions_url = "/indicator/EN.ATM.CO2E.KT?format=json&per_page=500"
+
+    def get_current_year(self):
+        current_datetime = datetime.datetime.now()
+        return int(current_datetime.strftime("%Y"))
 
     def get_generic_year_list(self):
         return self.generic_year_list
@@ -111,11 +115,25 @@ class ApiCaller:
 
         return self.country_id_dict
 
+    def get_country_name_dict(self):
+        country_dict = self.get_country_id_dict()
+        inverted_dict = {}
+        for key, value in country_dict.items():
+            inverted_dict[value] = key
+
+        return inverted_dict
+
     def get_country_code(self, country):
         if type(country) is not str:
             raise TypeError("country is expected to be of type str, got " + type(country).__name__)
 
         return self.get_country_id_dict()[country]
+
+    def get_country_name(self, country_id):
+        if type(country_id) is not str:
+            raise TypeError("country_id is expected to be of type str, got " + type(country_id).__name__)
+
+        return self.get_country_name_dict()[country_id]
 
     def get_population(self, country, year):
         if type(country) is not str:
