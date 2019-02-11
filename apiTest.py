@@ -257,3 +257,24 @@ class ApiTests(unittest.TestCase):
             }
         }
         self.assertEqual(expected_response, api_caller.get_multiple_data_range(country_list, 'emissions', 1985, 1987))
+
+    def test_multi_data_2(self):
+        api_caller = ApiCaller()
+        country_list = ["Puerto Rico", "Sweden"]
+        expected_response = {
+            'Puerto Rico': {1960: None},
+            'Sweden': {1960: 6.58}
+        }
+        self.assertEqual(expected_response, api_caller.get_multiple_data_range(country_list, 'emissions_per_capita',
+                         1940, 1960))
+
+    def test_multi_data_3(self):
+        api_caller = ApiCaller()
+        country_list = ["Puerto Rico", "Sweden", "Aruba"]
+        expected_response = {
+            'Aruba': {1960: None},
+            'Puerto Rico': {1960: None},
+            'Sweden': {1960: 6.58}
+        }
+        self.assertEqual(expected_response, api_caller.get_multiple_data_range(country_list, 'emissions_per_capita',
+                         1940, 1960))

@@ -2,6 +2,7 @@ import requests
 import datetime
 from math import log10, floor
 from typing import List
+from copy import deepcopy
 
 
 class ApiCaller:
@@ -216,4 +217,32 @@ class ApiCaller:
         return data_range
 
     def get_multiple_data_range(self, country_list: List[str], data_type: str, year_min: int, year_max: int):
-        pass
+        response = {}
+        sorted_response = {}
+        initial_year_dict = {}
+        year_range = range(year_min, year_max + 1)
+        for year in year_range:
+            initial_year_dict[year] = None
+
+        for country in country_list:
+            country_data = self.get_data_range(country, data_type, year_min, year_max)
+            response[country] = deepcopy(initial_year_dict)
+            for year in response[country]:
+                if year in country_data:
+                    response[country][year] = country_data[year]
+
+        for year in year_range:
+            all_empty = True
+            for country in response:
+                if response[country][year] is not None:
+                    all_empty = False
+                    break
+
+            if all_empty:
+                for country in response:
+                    response[country].pop(year, None)
+
+        for item in sorted(response):
+            sorted_response[item] = response[item]
+
+        return sorted_response
