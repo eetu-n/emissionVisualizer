@@ -9,6 +9,10 @@
     <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/materialize.min.css') }}"
           media="screen,projection"/>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/nouislider.css') }}">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css"
+          integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
+
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
@@ -19,6 +23,7 @@
 </head>
 
 <body>
+<main>
 <div class="container">
 
 <!-- Title -->
@@ -98,6 +103,22 @@
     </div>
 {% endif %}
 </div>
+</main>
+<footer class="page-footer">
+    <div class="container">
+        <div class="row">
+            <div class="col s12 valign-wrapper">
+                <h6><a href="https://github.com/rargh/emissionVisualizer" target="_blank"><i class="grey-text text-darken-3 fab fa-github fa-2x"></i></a>
+                Source code available on github</h6>
+            </div>
+        </div>
+    </div>
+    <div class="footer-copyright">
+        <div class="container">
+            © Eetu Närhi 2019
+        </div>
+    </div>
+</footer>
 
 <!-- Scripts -->
 
