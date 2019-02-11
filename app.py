@@ -6,24 +6,53 @@ app = Flask(__name__)
 api_caller = ApiCaller()
 
 
+# Returns a color based on the hash of the country name
+def get_color(name: str):
+    name_hash = str(hash(name) % 10 ** 9)
+
+    def to_hex(num):
+        return str(int((num/999)*255))
+
+    r = to_hex(int(name_hash[0:3]))
+    b = to_hex(int(name_hash[3:6]))
+    g = to_hex(int(name_hash[6:9]))
+
+    return "rgb(" + r + "," + g + "," + b + ')'
+
+
 @app.route('/', methods=["POST", "GET"])
 def index():
-    country_list = api_caller.get_country_list()
+    generic_country_list = api_caller.get_country_list()
     generic_year_list = api_caller.get_generic_year_list()
     year_min = int(1960)
     year_max = ApiCaller().get_current_year()
-    country = None
     data_type = None
+    data_dict = {}
     labels = generic_year_list
     values = []
     is_empty = False
     received = False
     invalid = False
+    input_country_list = []
+    country_amount = 0
+    color_list = []
 
     if request.method == "POST":
-        country = request.form.get('country_selector')
-        if country not in country_list:
+        input_country_list = request.form.get('input_country_list').split(",")
+        for country in input_country_list:
+            if country not in generic_country_list:
+                input_country_list.remove(country)
+
+        country_amount = len(input_country_list)
+
+        if country_amount == 0:
             invalid = True
+        else:
+            input_country_list = sorted(input_country_list)
+            get_color(input_country_list[0])
+
+        for country in input_country_list:
+            color_list.append(get_color(country))
 
         year_min = int(request.form.get('selected_year_min'))
         year_max = int(request.form.get('selected_year_max'))
@@ -35,16 +64,22 @@ def index():
             data_type = "emissions"
 
         if not invalid:
-            data_dict = api_caller.get_data_range(country, data_type, year_min, year_max)
-            labels = list(data_dict.keys())
-            values = list(data_dict.values())
+            data_dict = api_caller.get_multiple_data_range(input_country_list, data_type, year_min, year_max)
+            labels = list(data_dict[list(data_dict.keys())[0]].keys())
+            for i in range(len(input_country_list)):
+                value_list = list(data_dict[list(data_dict.keys())[i]].values())
+                for j in range(len(value_list)):
+                    if value_list[j] is None:
+                        value_list[j] = None
+                values.append(value_list)
             is_empty = api_caller.get_year_list(country, data_type, year_min, year_max) == []
 
         received = True
 
-    return render_template('index.html', country_list=country_list, generic_year_list=generic_year_list,
-                           country=country, year_min=year_min, year_max=year_max, data_type=data_type,
-                           labels=labels, values=values, received=received, is_empty=is_empty, invalid=invalid)
+    return render_template('index.html', generic_country_list=generic_country_list, generic_year_list=generic_year_list,
+                           year_min=year_min, year_max=year_max, data_type=data_type, labels=labels, values=values,
+                           received=received, is_empty=is_empty, invalid=invalid, input_country_list=input_country_list,
+                           country_amount=country_amount, color_list=color_list)
 
 
 # Api routing section
