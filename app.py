@@ -109,16 +109,8 @@ def data():
     if request_year is None:
         return jsonify(api_caller.get_data_range(request_country, request_data_type,
                                                  request_year_min, request_year_max))
-    elif request_data_type == 'emissions':
-        return jsonify(api_caller.get_emissions(request_country, request_year))
-
-    elif request_data_type == 'emissions_per_capita':
-        return jsonify(api_caller.get_emissions_per_capita(request_country, request_year))
-
-    elif request_data_type == 'population':
-        return jsonify(api_caller.get_population(request_country, request_year))
-
-    return 'Something went wrong'
+    else:
+        return jsonify(api_caller.get_data(request_country, request_data_type, request_year))
 
 
 if __name__ == '__main__':
