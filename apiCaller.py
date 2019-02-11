@@ -1,7 +1,7 @@
 import requests
 import datetime
 from math import log10, floor
-
+from typing import List
 
 class ApiCaller:
     def __init__(self):
@@ -30,7 +30,7 @@ class ApiCaller:
     def get_generic_year_list(self):
         return self.generic_year_list
 
-    def get_year_list(self, country, data_type, year_min, year_max):
+    def get_year_list(self, country: str, data_type: str, year_min: int, year_max: int):
         if type(country) is not str:
             raise TypeError("country is expected to be of type str, got " + type(country).__name__)
 
@@ -123,19 +123,19 @@ class ApiCaller:
 
         return inverted_dict
 
-    def get_country_code(self, country):
+    def get_country_code(self, country: str):
         if type(country) is not str:
             raise TypeError("country is expected to be of type str, got " + type(country).__name__)
 
         return self.get_country_id_dict()[country]
 
-    def get_country_name(self, country_id):
+    def get_country_name(self, country_id: str):
         if type(country_id) is not str:
             raise TypeError("country_id is expected to be of type str, got " + type(country_id).__name__)
 
         return self.get_country_name_dict()[country_id]
 
-    def get_population(self, country, year):
+    def get_population(self, country: str, year: int):
         if type(country) is not str:
             raise TypeError("country is expected to be of type str, got " + type(country).__name__)
 
@@ -151,7 +151,7 @@ class ApiCaller:
 
         return self.population_cache[country_id][year]
 
-    def get_emissions(self, country, year):
+    def get_emissions(self, country: str, year: int):
         if type(country) is not str:
             raise TypeError("country is expected to be of type str, got " + type(country).__name__)
 
@@ -167,14 +167,14 @@ class ApiCaller:
 
         return self.emissions_cache[country_id][year]
 
-    def get_emissions_per_capita(self, country, year):
+    def get_emissions_per_capita(self, country: str, year: int):
         value = (self.get_emissions(country, year) * 1000) / self.get_population(country, year)
 
         # Return number rounded to three significant figures
 
         return round(value, -int(floor(log10(abs(value)))) + 2)
 
-    def get_data_range(self, country, data_type, year_min, year_max):
+    def get_data_range(self, country: str, data_type: str, year_min: int, year_max: int) -> dict:
         if type(country) is not str:
             raise TypeError("country is expected to be of type str, got " + type(country).__name__)
 
@@ -205,3 +205,6 @@ class ApiCaller:
                 data_range[year] = self.get_emissions_per_capita(country, year)
 
         return data_range
+
+    def get_multiple_data_range(self, country_list: List[str], data_type: str, year_min: int, year_max: int):
+        pass
