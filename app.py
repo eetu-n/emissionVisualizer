@@ -66,13 +66,16 @@ def index():
         if not invalid:
             data_dict = api_caller.get_multiple_data_range(input_country_list, data_type, year_min, year_max)
             labels = list(data_dict[list(data_dict.keys())[0]].keys())
+
+            is_empty = True
             for i in range(len(input_country_list)):
                 value_list = list(data_dict[list(data_dict.keys())[i]].values())
-                for j in range(len(value_list)):
-                    if value_list[j] is None:
-                        value_list[j] = None
                 values.append(value_list)
-            is_empty = api_caller.get_year_list(country, data_type, year_min, year_max) == []
+
+                # Check to see if any data was retrieved
+                for item in value_list:
+                    if item is not None:
+                        is_empty = False
 
         received = True
 
@@ -84,7 +87,7 @@ def index():
 
 # Api routing section
 
-@app.route('/api', methods=["GET"])
+@app.route('/api/', methods=["GET"])
 def api():
     return "<h1>Emission Visualizer API</h1>" \
            "<p>The API returns the following data in json format:</p>" \
@@ -93,7 +96,7 @@ def api():
            "<li>api/country_id_list returns a list of countries with their corresponding ISO3 codes</li>" \
            "<li>api/data returns data for a specific country using the following arguments" \
            "<ul>" \
-                "<li>Specify a country with country=[ISO] (required)</li>" \
+                "<li>Specify countries with countries= a comma separated list of ISO3 codes (required)</li>" \
                 "<li>Specify type of data with data_type= emissions, emissions_per_capita or population " \
                 "(defaults to emissions)</li>" \
                 "<li>Specify specific year with year=int (defaults to a year range instead)</li>" \
@@ -115,7 +118,7 @@ def country_list():
 def data():
     request_data_type = request.args.get('data_type')
     request_year = request.args.get('year')
-    request_country = request.args.get('country')
+    request_country_string = request.args.get('countries')
     request_year_min = request.args.get('year_min')
     request_year_max = request.args.get('year_max')
 
@@ -135,17 +138,21 @@ def data():
     if request_data_type is None:
         request_data_type = 'emissions'
 
-    if request_country is None:
-        return "<h1>Please specify a valid country</h1>" \
-               "<p>Use country=ISO in the arguments.</p>"
+    if request_country_string is None:
+        return "<h1>Please specify one or more valid countries</h1>" \
+               "<p>Use countries=ISO,ISO,ISO... in the arguments.</p>"
     else:
-        request_country = api_caller.get_country_name(request_country)
+        request_country_id_list = request_country_string.split(",")
+        request_country_list = []
+        for country in request_country_id_list:
+            request_country_list.append(api_caller.get_country_name(country))
 
-    if request_year is None:
-        return jsonify(api_caller.get_data_range(request_country, request_data_type,
-                                                 request_year_min, request_year_max))
-    else:
-        return jsonify(api_caller.get_data(request_country, request_data_type, request_year))
+    if request_year is not None:
+        request_year_max = request_year
+        request_year_min = request_year
+
+    return jsonify(api_caller.get_multiple_data_range(request_country_list, request_data_type, request_year_min,
+                                                      request_year_max))
 
 
 if __name__ == '__main__':
