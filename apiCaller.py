@@ -135,6 +135,9 @@ class ApiCaller:
 
         return self.get_country_name_dict()[country_id]
 
+    def get_data(self, country: str, data_type: str, year: int):
+        pass
+
     def get_population(self, country: str, year: int):
         if type(country) is not str:
             raise TypeError("country is expected to be of type str, got " + type(country).__name__)
