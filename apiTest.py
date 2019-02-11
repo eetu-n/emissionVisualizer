@@ -239,3 +239,21 @@ class ApiTests(unittest.TestCase):
         api_caller = ApiCaller()
         with self.assertRaises(ValueError):
             api_caller.get_data_range('Nigeria', 'asd', 1969, 1971)
+
+    # Test finding multiple data ranges
+
+    def test_multi_data_1(self):
+        api_caller = ApiCaller()
+        country_list = ["Aruba", "Finland"]
+        expected_response = {
+            'Aruba': {
+                1985: None,
+                1986: 179.683,
+                1987: 447.374},
+            'Finland': {
+                1985: 49665.848,
+                1986: 53329.181,
+                1987: 57656.241
+            }
+        }
+        self.assertEqual(expected_response, api_caller.get_multiple_data_range(country_list, 'emissions', 1985, 1987))
