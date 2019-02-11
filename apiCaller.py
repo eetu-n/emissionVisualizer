@@ -149,42 +149,42 @@ class ApiCaller:
         if type(year) is not int:
             raise TypeError("year is expected to be of type int, got " + type(year).__name__)
 
-        def get_population(inner_country: str, inner_year: int):
-            country_id = self.get_country_id(inner_country)
-            if country_id not in self.population_cache:
-                population_list = requests.get(self.generic_url + country_id + self.population_url).json()[1]
-                self.population_cache[country_id] = {}
+        def get_population(inner_country_id: str, inner_year: int):
+            if inner_country_id not in self.population_cache:
+                population_list = requests.get(self.generic_url + inner_country_id + self.population_url).json()[1]
+                self.population_cache[inner_country_id] = {}
                 for population in population_list:
-                    self.population_cache[country_id][int(population['date'])] = population['value']
+                    self.population_cache[inner_country_id][int(population['date'])] = population['value']
 
-            return self.population_cache[country_id][inner_year]
+            return self.population_cache[inner_country_id][inner_year]
 
-        def get_emissions(inner_country: str, inner_year: int):
-            country_id = self.get_country_id(inner_country)
-            if country_id not in self.emissions_cache:
-                emissions_list = requests.get(self.generic_url + country_id + self.emissions_url).json()[1]
-                self.emissions_cache[country_id] = {}
+        def get_emissions(inner_country_id: str, inner_year: int):
+            if inner_country_id not in self.emissions_cache:
+                emissions_list = requests.get(self.generic_url + inner_country_id + self.emissions_url).json()[1]
+                self.emissions_cache[inner_country_id] = {}
                 for emissions in emissions_list:
-                    self.emissions_cache[country_id][int(emissions['date'])] = emissions['value']
+                    self.emissions_cache[inner_country_id][int(emissions['date'])] = emissions['value']
 
             return self.emissions_cache[country_id][inner_year]
 
-        def get_emissions_per_capita(inner_country: str, inner_year: int):
-            value = (get_emissions(inner_country, inner_year) * 1000) / \
-                    get_population(inner_country, inner_year)
+        def get_emissions_per_capita(inner_country_id: str, inner_year: int):
+            value = (get_emissions(inner_country_id, inner_year) * 1000) / \
+                    get_population(inner_country_id, inner_year)
 
             # Return number rounded to three significant figures
 
             return round(value, -int(floor(log10(abs(value)))) + 2)
 
+        country_id = self.get_country_id(country)
+
         if data_type == 'emissions':
-            return get_emissions(country, year)
+            return get_emissions(country_id, year)
 
         elif data_type == 'population':
-            return get_population(country, year)
+            return get_population(country_id, year)
 
         elif data_type == 'emissions_per_capita':
-            return get_emissions_per_capita(country, year)
+            return get_emissions_per_capita(country_id, year)
 
         else:
             raise ValueError("data_type should be 'emissions', 'population', or 'emissions_per_capita', got"
