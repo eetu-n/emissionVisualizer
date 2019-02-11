@@ -8,7 +8,7 @@ class ApiTests(unittest.TestCase):
 
     def test_country_list_1(self):
         api_caller = ApiCaller()
-        self.assertEqual('Aruba', api_caller.get_country_list()[0])
+        self.assertEqual('Afghanistan', api_caller.get_country_list()[0])
 
     # Test that regions are not included
 

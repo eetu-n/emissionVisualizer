@@ -183,10 +183,11 @@
 
     function update_country_list(){
         var chips = document.getElementsByClassName("chip");
-        country_cache = [];
+        country_cache = "";
         for (var i = 0; i < chips.length; i++){
             var content = chips[i].innerHTML;
-            country_cache.concat(content.slice(0, content.search('<')) + ";");
+            var country = content.slice(0, content.search('<'));
+            country_cache = country_cache.concat(country + ";");
         }
         input.setAttribute('value', country_cache);
     }
