@@ -66,13 +66,16 @@ def index():
         if not invalid:
             data_dict = api_caller.get_multiple_data_range(input_country_list, data_type, year_min, year_max)
             labels = list(data_dict[list(data_dict.keys())[0]].keys())
+
+            is_empty = True
             for i in range(len(input_country_list)):
                 value_list = list(data_dict[list(data_dict.keys())[i]].values())
-                for j in range(len(value_list)):
-                    if value_list[j] is None:
-                        value_list[j] = None
                 values.append(value_list)
-            is_empty = api_caller.get_year_list(country, data_type, year_min, year_max) == []
+
+                # Check to see if any data was retrieved
+                for item in value_list:
+                    if item is not None:
+                        is_empty = False
 
         received = True
 
