@@ -177,7 +177,7 @@
     });
 </script>
 <script>
-    var country_cache = [];
+    var country_cache = "";
 
     var input = document.getElementById("input_country_list");
 
@@ -186,7 +186,7 @@
         country_cache = [];
         for (var i = 0; i < chips.length; i++){
             var content = chips[i].innerHTML;
-            country_cache.push(content.slice(0, content.search('<')));
+            country_cache.concat(content.slice(0, content.search('<')) + ";");
         }
         input.setAttribute('value', country_cache);
     }

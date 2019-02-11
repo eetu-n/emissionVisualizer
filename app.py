@@ -38,7 +38,7 @@ def index():
     color_list = []
 
     if request.method == "POST":
-        input_country_list = request.form.get('input_country_list').split(",")
+        input_country_list = request.form.get('input_country_list').split(";")
         for country in input_country_list:
             if country not in generic_country_list:
                 input_country_list.remove(country)

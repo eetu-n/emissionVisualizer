@@ -95,14 +95,18 @@ class ApiTests(unittest.TestCase):
         api_caller.get_country_id('Sweden')
         self.assertEqual('swe', api_caller.get_country_id('Sweden'))
 
+    def test_name_4(self):
+            api_caller = ApiCaller()
+            self.assertEqual("bhs", api_caller.get_country_id("Bahamas, The"))
+
         # Test errors
 
-    def test_name_4(self):
+    def test_name_5(self):
         api_caller = ApiCaller()
         with self.assertRaises(KeyError):
             api_caller.get_country_id('NotACountry')
 
-    def test_name_5(self):
+    def test_name_6(self):
         api_caller = ApiCaller()
         with self.assertRaises(TypeError):
             api_caller.get_country_id(True)
