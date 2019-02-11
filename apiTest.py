@@ -82,30 +82,30 @@ class ApiTests(unittest.TestCase):
 
     def test_name_1(self):
         api_caller = ApiCaller()
-        self.assertEqual('dnk', api_caller.get_country_code('Denmark'))
+        self.assertEqual('dnk', api_caller.get_country_id('Denmark'))
 
     def test_name_2(self):
         api_caller = ApiCaller()
-        self.assertEqual('gbr', api_caller.get_country_code('United Kingdom'))
+        self.assertEqual('gbr', api_caller.get_country_id('United Kingdom'))
 
         # Test to see if caching functions properly
 
     def test_name_3(self):
         api_caller = ApiCaller()
-        api_caller.get_country_code('Sweden')
-        self.assertEqual('swe', api_caller.get_country_code('Sweden'))
+        api_caller.get_country_id('Sweden')
+        self.assertEqual('swe', api_caller.get_country_id('Sweden'))
 
         # Test errors
 
     def test_name_4(self):
         api_caller = ApiCaller()
         with self.assertRaises(KeyError):
-            api_caller.get_country_code('NotACountry')
+            api_caller.get_country_id('NotACountry')
 
     def test_name_5(self):
         api_caller = ApiCaller()
         with self.assertRaises(TypeError):
-            api_caller.get_country_code(True)
+            api_caller.get_country_id(True)
 
     # Verify querying data returns correct results and proper errors
 

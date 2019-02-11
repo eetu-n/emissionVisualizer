@@ -3,6 +3,7 @@ import datetime
 from math import log10, floor
 from typing import List
 
+
 class ApiCaller:
     def __init__(self):
         self.country_list = []
@@ -13,7 +14,6 @@ class ApiCaller:
         self.emissions_year_cache = {}
 
         self.generic_year_list = []
-
         for x in range(1960, self.get_current_year() + 1):
             self.generic_year_list.append(x)
 
@@ -23,7 +23,8 @@ class ApiCaller:
     population_url = "/indicator/SP.POP.TOTL?format=json&per_page=500"
     emissions_url = "/indicator/EN.ATM.CO2E.KT?format=json&per_page=500"
 
-    def get_current_year(self):
+    @staticmethod
+    def get_current_year():
         current_datetime = datetime.datetime.now()
         return int(current_datetime.strftime("%Y"))
 
@@ -46,7 +47,7 @@ class ApiCaller:
         if type(year_max) is not int:
             raise TypeError("year_min is expected to be of type int, got " + type(year_max).__name__)
 
-        country_id = self.get_country_code(country)
+        country_id = self.get_country_id(country)
         year_list = []
         if year_min > year_max:
             temp = year_max
@@ -92,8 +93,11 @@ class ApiCaller:
         elif data_type == 'emissions_per_capita':
             year_list_1 = get_population_year_list()
             year_list_2 = get_emissions_year_list()
+
+            # The intersection of both year lists
             year_list = list(set(year_list_1) & set(year_list_2))
 
+        # The sorted intersection of the specified year range and the years with available data
         year_list = list(set(year_list) & set(range(year_min, year_max + 1)))
         year_list.sort()
 
@@ -123,7 +127,7 @@ class ApiCaller:
 
         return inverted_dict
 
-    def get_country_code(self, country: str):
+    def get_country_id(self, country: str):
         if type(country) is not str:
             raise TypeError("country is expected to be of type str, got " + type(country).__name__)
 
@@ -146,7 +150,7 @@ class ApiCaller:
             raise TypeError("year is expected to be of type int, got " + type(year).__name__)
 
         def get_population(inner_country: str, inner_year: int):
-            country_id = self.get_country_code(inner_country)
+            country_id = self.get_country_id(inner_country)
             if country_id not in self.population_cache:
                 population_list = requests.get(self.generic_url + country_id + self.population_url).json()[1]
                 self.population_cache[country_id] = {}
@@ -156,7 +160,7 @@ class ApiCaller:
             return self.population_cache[country_id][inner_year]
 
         def get_emissions(inner_country: str, inner_year: int):
-            country_id = self.get_country_code(inner_country)
+            country_id = self.get_country_id(inner_country)
             if country_id not in self.emissions_cache:
                 emissions_list = requests.get(self.generic_url + country_id + self.emissions_url).json()[1]
                 self.emissions_cache[country_id] = {}
