@@ -11,7 +11,7 @@ def index():
     country_list = api_caller.get_country_list()
     generic_year_list = api_caller.get_generic_year_list()
     year_min = int(1960)
-    year_max = api_caller.get_current_year()
+    year_max = ApiCaller().get_current_year()
     country = None
     data_type = None
     labels = generic_year_list
