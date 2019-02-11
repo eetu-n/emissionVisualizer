@@ -23,10 +23,17 @@
         </div>
     </div>
     <form method="POST" id="input" autocomplete="off">
-        <div class="row">
-            <div id="country_selector" class="col s12 chips chips-autocomplete">
+        <div class="col s10 m12">
+            <label style="margin-top: 0px">Choose one or more countries</label>
+        </div>
+        <div class="row valign-wrapper">
+            <div id="country_selector" class="col s10 m12 chips chips-autocomplete">
             </div>
-            <label for="country_selector">Choose one or more countries</label>
+            <div class="col s2 hide-on-med-and-up">
+                <a class="btn-floating btn-large waves-effect waves-light red" onclick="submit_form(input)">
+                    <i class="material-icons">forward</i>
+                </a>
+            </div>
         </div>
         <input id="input_country_list" name="input_country_list" value="" hidden>
         <div class="row" style="margin-left: 1vw; margin-right: 1vw">
@@ -177,16 +184,17 @@
     });
 </script>
 <script>
-    var country_cache = [];
+    var country_cache = "";
 
     var input = document.getElementById("input_country_list");
 
     function update_country_list(){
         var chips = document.getElementsByClassName("chip");
-        country_cache = [];
+        country_cache = "";
         for (var i = 0; i < chips.length; i++){
             var content = chips[i].innerHTML;
-            country_cache.push(content.slice(0, content.search('<')));
+            var country = content.slice(0, content.search('<'));
+            country_cache = country_cache.concat(country + ";");
         }
         input.setAttribute('value', country_cache);
     }

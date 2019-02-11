@@ -110,6 +110,7 @@ class ApiCaller:
                 if country['region']['value'] != 'Aggregates':
                     self.country_list.append(country['name'])
 
+        self.country_list = sorted(self.country_list)
         return self.country_list
 
     def get_country_id_dict(self):
