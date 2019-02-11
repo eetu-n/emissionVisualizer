@@ -53,9 +53,10 @@
                 </label>
             </div>
         </div>
-        <div id="loading_animation" class="col s12 progress scale-transition scale-out" hidden>
-            <div class="indeterminate"></div>
-        </div>
+    </form>
+    <div id="loading_animation" class="col s12 progress scale-transition scale-out" hidden>
+        <div class="indeterminate"></div>
+    </div>
 
     {% if invalid %}
         <div class="row">
@@ -81,15 +82,22 @@
     var ctx = document.getElementById('myChart').getContext('2d');
     var chart = new Chart(ctx, {
     type: 'line',
-    scaleLabel: {
-        display: true
-    },
     options: {
         maintainAspectRatio: false,
         scales: {
-            yAxes: {
-                label: "Year"
-            }
+            yAxes: [{
+                scaleLabel: {
+                    display: true,
+                    labelString: {% if data_type == 'emissions' %} "Total emissions (Kilotonnes)" {% else %}
+                    "Emissions per capita (Tonnes per capita)"{% endif %}
+                }
+            }],
+            xAxes: [{
+                scaleLabel: {
+                    display: true,
+                    labelString: "Year"
+                }
+            }]
         }
     },
     data: {
