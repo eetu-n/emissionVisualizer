@@ -28,6 +28,12 @@ class ApiTests(unittest.TestCase):
         country_dict = api_caller.get_country_id_dict()
         self.assertTrue(len(country_list) == len(country_dict))
 
+    # Verify the inverse country dict functions as intended
+
+    def test_inv_country_dict_1(self):
+        api_caller = ApiCaller()
+        self.assertEqual('Aruba', api_caller.get_country_name('abw'))
+
     # Verify querying year range for specific country returns years with data
 
     def test_year_range_1(self):
