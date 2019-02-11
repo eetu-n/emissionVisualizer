@@ -24,12 +24,11 @@
     </div>
     <form method="POST" id="input" autocomplete="off">
         <div class="row">
-            <div class="input-field col s12">
-                <input type="text" id="country_selector" name="country_selector" class="autocomplete" autocomplete="off"
-                       {% if received and not invalid %} value="{{ country }}" {% endif %}>
-                <label for="country_selector">Choose a country</label>
+            <div id="country_selector" class="col s12 chips chips-autocomplete">
             </div>
+            <label for="country_selector">Choose one or more countries</label>
         </div>
+        <input id="input_country_list" name="input_country_list" value="" hidden>
         <div class="row" style="margin-left: 1vw; margin-right: 1vw">
             <div id="year-selector" class="col s12"></div>
             <input type="number" id="year_min" name="selected_year_min" value="{{ year_min }}" hidden>
@@ -50,7 +49,6 @@
         <div id="loading_animation" class="col s12 progress scale-transition scale-out" hidden>
             <div class="indeterminate"></div>
         </div>
-    </form>
 
     {% if invalid %}
         <div class="row">
@@ -62,7 +60,7 @@
     {% elif is_empty and received %}
         <div>
             <p>
-                No data available for {{ country }} between {{ year_min }} and {{ year_max }}
+                No data available for {{ input_country_list[0] }} between {{ year_min }} and {{ year_max }}
             </p>
         </div>
 {% elif received and not invalid %}
@@ -76,35 +74,62 @@
     var ctx = document.getElementById('myChart').getContext('2d');
     var chart = new Chart(ctx, {
     type: 'line',
+    scaleLabel: {
+        display: true
+    },
     options: {
-        maintainAspectRatio: false
+        maintainAspectRatio: false,
+        scales: {
+            yAxes: {
+                label: "Year"
+            }
+        }
     },
     data: {
         labels: {{ labels }},
-        datasets: [{
-            label: "Emissions " + {% if data_type == 'emissions_per_capita' %} "per capita " + {% endif %}
-                "in " + "{{ country }} " +
-                "({% if data_type == 'emissions' %}kilotonnes{% else %}tonnes per capita{% endif %})" ,
-            borderColor: 'rgb(38, 166, 154)',
+        datasets: [{% for i in range(country_amount) %}{
+            label: "{{ input_country_list[i] }}",
+            borderColor: "{{ color_list[i] }}",
             fill: false,
-            data: {{ values }},
-        }]
+            data: [{% for value in values[i] %}
+                        {% if value == None %}
+                            null,
+                        {% else %}
+                            {{ value }},
+                        {% endif %}
+                    {% endfor %}
+                ],
+        },{% endfor %}]
     },
 });
 </script>
 <script>
     $(document).ready(function(){
-        $('#country_selector').autocomplete({
-            data: {
-                {% for item in country_list %}
-                    "{{ item }}": null,
-                {% endfor %}
+        $('.chips-autocomplete').chips({
+            autocompleteOptions: {
+                data: {
+                    {% for item in generic_country_list %}
+                        '{{ item }}': null,
+                    {% endfor %}
+                },
+                minLength: 0,
+                onAutocomplete: function(){
+                    submit_form()
+                }
             },
-            minLength: 0,
-            onAutocomplete: function(){
-                submit_form()
-            }
+            onChipAdd: function(){
+                update_country_list()
+            },
+            onChipDelete: function(){
+                update_country_list()
+            },
+            data: [
+                {% for item in input_country_list %}
+                    {tag: '{{ item }}'},
+                {% endfor %}
+            ]
         });
+        update_country_list()
     });
 </script>
 <script>
@@ -150,6 +175,21 @@
             submit_form()
         }
     });
+</script>
+<script>
+    var country_cache = [];
+
+    var input = document.getElementById("input_country_list");
+
+    function update_country_list(){
+        var chips = document.getElementsByClassName("chip");
+        country_cache = [];
+        for (var i = 0; i < chips.length; i++){
+            var content = chips[i].innerHTML;
+            country_cache.push(content.slice(0, content.search('<')));
+        }
+        input.setAttribute('value', country_cache);
+    }
 </script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/materialize.min.js') }}"></script>
 </body>

@@ -28,12 +28,6 @@ class ApiTests(unittest.TestCase):
         country_dict = api_caller.get_country_id_dict()
         self.assertTrue(len(country_list) == len(country_dict))
 
-    # Verify the inverse country dict functions as intended
-
-    def test_inv_country_dict_1(self):
-        api_caller = ApiCaller()
-        self.assertEqual('Aruba', api_caller.get_country_name('abw'))
-
     # Verify querying year range for specific country returns years with data
 
     def test_year_range_1(self):
@@ -88,94 +82,74 @@ class ApiTests(unittest.TestCase):
 
     def test_name_1(self):
         api_caller = ApiCaller()
-        self.assertEqual('dnk', api_caller.get_country_code('Denmark'))
+        self.assertEqual('dnk', api_caller.get_country_id('Denmark'))
 
     def test_name_2(self):
         api_caller = ApiCaller()
-        self.assertEqual('gbr', api_caller.get_country_code('United Kingdom'))
+        self.assertEqual('gbr', api_caller.get_country_id('United Kingdom'))
 
         # Test to see if caching functions properly
 
     def test_name_3(self):
         api_caller = ApiCaller()
-        api_caller.get_country_code('Sweden')
-        self.assertEqual('swe', api_caller.get_country_code('Sweden'))
+        api_caller.get_country_id('Sweden')
+        self.assertEqual('swe', api_caller.get_country_id('Sweden'))
 
         # Test errors
 
     def test_name_4(self):
         api_caller = ApiCaller()
         with self.assertRaises(KeyError):
-            api_caller.get_country_code('NotACountry')
+            api_caller.get_country_id('NotACountry')
 
     def test_name_5(self):
         api_caller = ApiCaller()
         with self.assertRaises(TypeError):
-            api_caller.get_country_code(True)
+            api_caller.get_country_id(True)
 
-    # Verify querying specific country and year returns correct population, and an invalid year returns proper error
+    # Verify querying data returns correct results and proper errors
 
-    def test_population_1(self):
+    def test_data_1(self):
         api_caller = ApiCaller()
-        self.assertEqual(9378126, api_caller.get_population('Sweden', 2010))
+        self.assertEqual(9378126, api_caller.get_data('Sweden', 'population', 2010))
 
-    def test_population_2(self):
+    def test_data_2(self):
         api_caller = ApiCaller()
-        self.assertEqual(5338871, api_caller.get_population('Finland', 2009))
+        self.assertEqual(58162.287, api_caller.get_data('Norway', 'emissions', 2013))
 
-        # Test to see if caching functions properly
-
-    def test_population_3(self):
+    def test_data_3(self):
         api_caller = ApiCaller()
-        api_caller.get_population('Austria', 1985)
-        self.assertEqual(7564985, api_caller.get_population('Austria', 1985))
+        self.assertEqual(0.369, api_caller.get_data('Costa Rica', 'emissions_per_capita', 1960))
 
-    def test_population_4(self):
+    def test_data_4(self):
+        api_caller = ApiCaller()
+        with self.assertRaises(TypeError):
+            api_caller.get_data(True, 'emissions', 2009)
+
+    def test_data_5(self):
+        api_caller = ApiCaller()
+        with self.assertRaises(TypeError):
+            api_caller.get_data('Belarus', True, 2009)
+
+    def test_data_6(self):
+        api_caller = ApiCaller()
+        with self.assertRaises(TypeError):
+            api_caller.get_data('Sweden', 'emissions', True)
+
+    def test_data_7(self):
         api_caller = ApiCaller()
         with self.assertRaises(KeyError):
-            api_caller.get_population('Belarus', 1339)
+            api_caller.get_data('NotACountry', 'emissions', 2009)
 
-    def test_population_5(self):
+    def test_data_8(self):
         api_caller = ApiCaller()
-        with self.assertRaises(TypeError):
-            api_caller.get_population(True, 2009)
+        with self.assertRaises(ValueError):
+            api_caller.get_data('Norway', 'notData', 2009)
 
-    def test_population_6(self):
-        api_caller = ApiCaller()
-        with self.assertRaises(TypeError):
-            api_caller.get_population('Belarus', True)
-
-    # Verify querying specific country and year returns correct CO2 emissions, and appropriate errors for invalid year
-
-    def test_emission_1(self):
-        api_caller = ApiCaller()
-        self.assertEqual(58162.287, api_caller.get_emissions('Norway', 2013))
-
-    def test_emission_2(self):
-        api_caller = ApiCaller()
-        self.assertEqual(99944.085, api_caller.get_emissions('Belgium', 2011))
-
-        # Test to see if caching functions properly
-
-    def test_emission_3(self):
-        api_caller = ApiCaller()
-        api_caller.get_emissions('France', 2014)
-        self.assertEqual(303275.568, api_caller.get_emissions('France', 2014))
-
-    def test_emission_4(self):
+    def test_data_9(self):
         api_caller = ApiCaller()
         with self.assertRaises(KeyError):
-            api_caller.get_emissions('Bulgaria', 3043)
-
-    def test_emission_5(self):
-        api_caller = ApiCaller()
-        with self.assertRaises(TypeError):
-            api_caller.get_emissions(True, 2011)
-
-    def test_emission_6(self):
-        api_caller = ApiCaller()
-        with self.assertRaises(TypeError):
-            api_caller.get_emissions('Bulgaria', True)
+            api_caller.get_data('Canada', 'emissions', 1000)
 
     # Verify that querying range of years returns correct range of population values
 
@@ -239,58 +213,68 @@ class ApiTests(unittest.TestCase):
         api_caller.get_data_range('Nigeria', 'emissions', 1969, 1971)
         self.assertEqual(test_range, api_caller.get_data_range('Nigeria', 'emissions', 1969, 1971))
 
-    # Verify get_emissions_per_capita returns correct values
-
-    def test_per_capita_1(self):
-        api_caller = ApiCaller()
-        self.assertEqual(0.369, api_caller.get_emissions_per_capita('Costa Rica', 1960))
-
-    def test_per_capita_2(self):
-        api_caller = ApiCaller()
-        self.assertEqual(0.35, api_caller.get_emissions_per_capita('Afghanistan', 2012))
-
-    def test_per_capita_3(self):
-        api_caller = ApiCaller()
-        self.assertEqual(7.54, api_caller.get_emissions_per_capita('China', 2014))
-
-    def test_per_capita_4(self):
-        api_caller = ApiCaller()
-        with self.assertRaises(TypeError):
-            api_caller.get_emissions_per_capita(True, 2012)
-
-    def test_per_capita_5(self):
-        api_caller = ApiCaller()
-        with self.assertRaises(TypeError):
-            api_caller.get_emissions_per_capita('Aruba', 'notANumber')
-
-    def test_per_capita_6(self):
-        api_caller = ApiCaller()
-        with self.assertRaises(KeyError):
-            api_caller.get_emissions_per_capita('NotACountry', 2012)
-
     # Verify error detection for get_data_range
 
-    def test_data_error_1(self):
+    def test_data_range_error_1(self):
         api_caller = ApiCaller()
         with self.assertRaises(TypeError):
             api_caller.get_data_range(True, 'emissions', 1969, 1971)
 
-    def test_data_error_2(self):
+    def test_data_range_error_2(self):
         api_caller = ApiCaller()
         with self.assertRaises(TypeError):
             api_caller.get_data_range('Nigeria', True, 1969, 1971)
 
-    def test_data_error_3(self):
+    def test_data_range_error_3(self):
         api_caller = ApiCaller()
         with self.assertRaises(TypeError):
             api_caller.get_data_range('Nigeria', 'emissions', False, 1971)
 
-    def test_data_error_4(self):
+    def test_data_range_error_4(self):
         api_caller = ApiCaller()
         with self.assertRaises(TypeError):
             api_caller.get_data_range('Nigeria', 'emissions', 1969, False)
 
-    def test_data_error_5(self):
+    def test_data_range_error_5(self):
         api_caller = ApiCaller()
         with self.assertRaises(ValueError):
             api_caller.get_data_range('Nigeria', 'asd', 1969, 1971)
+
+    # Test finding multiple data ranges
+
+    def test_multi_data_1(self):
+        api_caller = ApiCaller()
+        country_list = ["Aruba", "Finland"]
+        expected_response = {
+            'Aruba': {
+                1985: None,
+                1986: 179.683,
+                1987: 447.374},
+            'Finland': {
+                1985: 49665.848,
+                1986: 53329.181,
+                1987: 57656.241
+            }
+        }
+        self.assertEqual(expected_response, api_caller.get_multiple_data_range(country_list, 'emissions', 1985, 1987))
+
+    def test_multi_data_2(self):
+        api_caller = ApiCaller()
+        country_list = ["Puerto Rico", "Sweden"]
+        expected_response = {
+            'Puerto Rico': {1960: None},
+            'Sweden': {1960: 6.58}
+        }
+        self.assertEqual(expected_response, api_caller.get_multiple_data_range(country_list, 'emissions_per_capita',
+                         1940, 1960))
+
+    def test_multi_data_3(self):
+        api_caller = ApiCaller()
+        country_list = ["Puerto Rico", "Sweden", "Aruba"]
+        expected_response = {
+            'Aruba': {1960: None},
+            'Puerto Rico': {1960: None},
+            'Sweden': {1960: 6.58}
+        }
+        self.assertEqual(expected_response, api_caller.get_multiple_data_range(country_list, 'emissions_per_capita',
+                         1940, 1960))
