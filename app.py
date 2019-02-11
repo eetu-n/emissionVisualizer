@@ -54,9 +54,9 @@ def api():
     return "<h1>Emission Visualizer API</h1>" \
            "<p>The API returns the following data in json format:</p>" \
            "<ul>" \
-           "<li>A list of countries with api/country_list</li>" \
-           "<li>A list of countries with their corresponding ISO3 codes with api/country_id_list</li>" \
-           "<li>Data per country can be found through api/data, with the following argument options" \
+           "<li>api/country_list returns a list of available countries</li>" \
+           "<li>api/country_id_list returns a list of countries with their corresponding ISO3 codes</li>" \
+           "<li>api/data returns data for a specific country using the following arguments" \
            "<ul>" \
                 "<li>Specify a country with country=[ISO] (required)</li>" \
                 "<li>Specify type of data with data_type= emissions, emissions_per_capita or population " \
