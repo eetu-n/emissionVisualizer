@@ -7,6 +7,8 @@ from copy import deepcopy
 
 class ApiCaller:
     def __init__(self):
+
+        # Caches
         self.country_list = []
         self.country_id_dict = {}
         self.population_cache = {}
@@ -14,6 +16,7 @@ class ApiCaller:
         self.population_year_cache = {}
         self.emissions_year_cache = {}
 
+        # Generate a list of years from beginning of data (1960) to current year
         self.generic_year_list = []
         for x in range(1960, self.get_current_year() + 1):
             self.generic_year_list.append(x)
@@ -32,6 +35,7 @@ class ApiCaller:
     def get_generic_year_list(self):
         return self.generic_year_list
 
+    # Gets a list of years with available data for specific country and data type
     def get_year_list(self, country: str, data_type: str, year_min: int, year_max: int):
         if type(country) is not str:
             raise TypeError("country is expected to be of type str, got " + type(country).__name__)
@@ -50,16 +54,20 @@ class ApiCaller:
 
         country_id = self.get_country_id(country)
         year_list = []
+
+        # Reverses min and max if required
         if year_min > year_max:
             temp = year_max
             year_max = year_min
             year_min = temp
 
         def get_emissions_year_list():
+            inner_year_list = []
+
             if country_id not in self.emissions_year_cache:
-                inner_year_list = []
                 emissions_list = (requests.get(self.generic_url + country_id + self.emissions_url)).json()
-                for x in emissions_list[1]:
+
+                for x in emissions_list[1]:  # [0] is metadata
                     if x['value'] is not None:
                         inner_year_list.insert(0, int(x['date']))
 
@@ -71,10 +79,12 @@ class ApiCaller:
             return inner_year_list
 
         def get_population_year_list():
+            inner_year_list = []
+
             if country_id not in self.population_year_cache:
-                inner_year_list = []
                 population_list = (requests.get(self.generic_url + country_id + self.population_url)).json()
-                for x in population_list[1]:
+
+                for x in population_list[1]:  # [0] is metadata
                     if x['value'] is not None:
                         inner_year_list.insert(0, int(x['date']))
 
@@ -107,6 +117,8 @@ class ApiCaller:
     def get_country_list(self):
         if len(self.country_list) == 0:
             for country in self.country_json[1]:
+
+                # Make sure not to include regions
                 if country['region']['value'] != 'Aggregates':
                     self.country_list.append(country['name'])
 
@@ -155,6 +167,7 @@ class ApiCaller:
             if inner_country_id not in self.population_cache:
                 population_list = requests.get(self.generic_url + inner_country_id + self.population_url).json()[1]
                 self.population_cache[inner_country_id] = {}
+
                 for population in population_list:
                     self.population_cache[inner_country_id][int(population['date'])] = population['value']
 
@@ -164,6 +177,7 @@ class ApiCaller:
             if inner_country_id not in self.emissions_cache:
                 emissions_list = requests.get(self.generic_url + inner_country_id + self.emissions_url).json()[1]
                 self.emissions_cache[inner_country_id] = {}
+
                 for emissions in emissions_list:
                     self.emissions_cache[inner_country_id][int(emissions['date'])] = emissions['value']
 

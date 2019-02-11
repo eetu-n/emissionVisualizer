@@ -8,8 +8,11 @@ api_caller = ApiCaller()
 
 # Returns a color based on the hash of the country name
 def get_color(name: str):
+
+    # Gets a 9 digit hash from provided string as a string
     name_hash = str(hash(name) % 10 ** 9)
 
+    # Converts 3 digit decimal integer to a decimal int between 0 and 255
     def to_hex(num):
         return str(int((num/999)*255))
 
@@ -24,20 +27,26 @@ def get_color(name: str):
 def index():
     generic_country_list = api_caller.get_country_list()
     generic_year_list = api_caller.get_generic_year_list()
+
+    current_year = ApiCaller().get_current_year()
+
     year_min = int(1960)
     year_max = ApiCaller().get_current_year()
+
     data_type = None
-    data_dict = {}
     labels = generic_year_list
     values = []
-    is_empty = False
-    received = False
-    invalid = False
     input_country_list = []
     country_amount = 0
     color_list = []
 
+    is_empty = False
+    received = False
+    invalid = False
+
     if request.method == "POST":
+        received = True
+
         input_country_list = request.form.get('input_country_list').split(";")
         for country in input_country_list:
             if country not in generic_country_list:
@@ -49,8 +58,8 @@ def index():
             invalid = True
         else:
             input_country_list = sorted(input_country_list)
-            get_color(input_country_list[0])
 
+        # Gets a unique and persistent color for each country
         for country in input_country_list:
             color_list.append(get_color(country))
 
@@ -65,24 +74,26 @@ def index():
 
         if not invalid:
             data_dict = api_caller.get_multiple_data_range(input_country_list, data_type, year_min, year_max)
+
+            # List of years for x axis labels, same for every country
             labels = list(data_dict[list(data_dict.keys())[0]].keys())
 
+            # Assume no data was retrieved
             is_empty = True
+
             for i in range(len(input_country_list)):
                 value_list = list(data_dict[list(data_dict.keys())[i]].values())
                 values.append(value_list)
 
-                # Check to see if any data was retrieved
+                # Check to see if any data present for this country
                 for item in value_list:
                     if item is not None:
                         is_empty = False
 
-        received = True
-
     return render_template('index.html', generic_country_list=generic_country_list, generic_year_list=generic_year_list,
                            year_min=year_min, year_max=year_max, data_type=data_type, labels=labels, values=values,
                            received=received, is_empty=is_empty, invalid=invalid, input_country_list=input_country_list,
-                           country_amount=country_amount, color_list=color_list)
+                           country_amount=country_amount, color_list=color_list, current_year=current_year)
 
 
 # Api routing section
