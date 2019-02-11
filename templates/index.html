@@ -3,17 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <title>Emission Visualizer</title>
+
+    <!-- CSS -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/materialize.min.css') }}"
           media="screen,projection"/>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/nouislider.css') }}">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+    <!-- JS -->
     <script src="{{ url_for('static', filename='js/Chart.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/jquery-3.3.1.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/nouislider.js') }}"></script>
 </head>
+
 <body>
 <div class="container">
+
+<!-- Title -->
     <div class="row">
         <div class="col s12">
             <h4 class="center">Emission Visualizer</h4>
@@ -22,7 +30,11 @@
             {% endif %}
         </div>
     </div>
+
+<!-- Form -->
     <form method="POST" id="input" autocomplete="off">
+
+    <!-- Country Selector -->
         <div class="col s10 m11">
             <label style="margin-top: 0px">Choose one or more countries</label>
         </div>
@@ -30,18 +42,22 @@
             <div id="country_selector" class="col s10 m11 chips chips-autocomplete">
             </div>
             <div class="col s2 m1">
-                <a class="btn-floating btn-large waves-effect waves-light" onclick="submit_form(input)">
+                <a class="btn-floating btn-large waves-effect waves-light" onclick="submit_form()">
                     <i class="material-icons">forward</i>
                 </a>
             </div>
         </div>
         <input id="input_country_list" name="input_country_list" value="" hidden>
+
+    <!-- Year selector -->
         <div class="row" style="margin-left: 1vw; margin-right: 1vw">
             <div id="year-selector" class="col s12"></div>
             <input type="number" id="year_min" name="selected_year_min" value="{{ year_min }}" hidden>
             <input type="number" id="year_max" name="selected_year_max" value="{{ year_max }}" hidden>
             <label for="year-selector">Choose a date range</label>
         </div>
+
+    <!-- Per capita selector -->
         <div class="row">
             <div class="col s12 center">
                 <label>
@@ -54,10 +70,13 @@
             </div>
         </div>
     </form>
+
+    <!-- Loading animation -->
     <div id="loading_animation" class="col s12 progress scale-transition scale-out" hidden>
         <div class="indeterminate"></div>
     </div>
 
+    <!-- Error messages -->
     {% if invalid %}
         <div class="row">
             <div class="col s12 center">
@@ -71,13 +90,18 @@
                 No data available for chosen countries between {{ year_min }} and {{ year_max }}
             </p>
         </div>
+
+<!-- Chart if no errors triggered -->
 {% elif received and not invalid %}
     <div style="position: relative; height: 45vh">
         <canvas id="myChart"></canvas>
     </div>
-</div>
 {% endif %}
+</div>
 
+<!-- Scripts -->
+
+<!-- Script to configure chart-->
 <script>
     var ctx = document.getElementById('myChart').getContext('2d');
     var chart = new Chart(ctx, {
@@ -118,6 +142,8 @@
     },
 });
 </script>
+
+<!-- Script to configure autocomplete input -->
 <script>
     $(document).ready(function(){
         $('.chips-autocomplete').chips({
@@ -147,6 +173,8 @@
         update_country_list()
     });
 </script>
+
+<!-- Script to configure slider -->
 <script>
     var slider = document.getElementById('year-selector');
     noUiSlider.create(slider, {
@@ -156,13 +184,14 @@
         orientation: 'horizontal',
         range: {
             'min': 1960,
-            'max': 2019
+            'max': {{ current_year }}
         },
         format: wNumb({
             decimals: 0
         })
     });
 
+    // Update html inputs manually and submit form when slider is set
     slider.noUiSlider.on('set', function(values, handle){
         if (handle == 0) {
             document.getElementById("year_min").setAttribute("value", values[handle]);
@@ -173,6 +202,8 @@
     });
 
 </script>
+
+<!-- Script to set display loading animation and submit form -->
 <script>
     var loader = document.getElementById("loading_animation");
     function submit_form() {
@@ -181,6 +212,8 @@
         document.getElementById("input").submit();
     }
 </script>
+
+<!-- Submit on pressing enter on text input -->
 <script>
     var input = document.getElementById("country_selector");
 
@@ -191,6 +224,8 @@
         }
     });
 </script>
+
+<!-- Copy values from chips and update input appropriately -->
 <script>
     var country_cache = "";
 
