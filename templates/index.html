@@ -260,6 +260,7 @@
             var country = content.slice(0, content.search('<'));
             country_cache = country_cache.concat(country + ";");
         }
+        country_cache = country_cache.slice(0,-1);
         input.setAttribute('value', country_cache);
     }
 </script>
