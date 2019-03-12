@@ -13,13 +13,8 @@ RUN python -m venv .env
 RUN .env/bin/pip install --upgrade pip
 RUN .env/bin/pip install -r requirements.txt
 
-# Copy all the relevant resources for the app to run
-COPY wsgi.py wsgi.py
-COPY emissionVisualizer.ini emissionVisualizer.ini
-COPY app.py app.py
-COPY apiCaller.py apiCaller.py
-COPY templates templates
-COPY static static
+# Copy all the relevant resources for the app to run, ignoreing files in .dockerignore
+COPY . .
 
 # The command that is run when the container is started, here launching uWSGI
-CMD [".env/bin/uwsgi", "--ini", "emissionVisualizer.ini"
+CMD [".env/bin/uwsgi", "--ini", "emissionVisualizer.ini"]
